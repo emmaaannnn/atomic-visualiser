@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import type { ThreeEvent } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
-import type { Placement } from "./types";
-import { colourForItem, cornerToCenter, dimensionToVector, positionToVector } from "./utils";
+import type { Placement } from "../lib/types";
+import { colourForItem, cornerToCenter, dimensionToVector, positionToVector } from "../lib/utils";
 
 interface BoxProps {
   placement: Placement;

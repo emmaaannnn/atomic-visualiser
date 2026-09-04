@@ -4,15 +4,15 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import type { OptimisationResult } from "./types";
-import { groupByBoxInstance, resolveContainerSize } from "./utils";
+import type { OptimisationResult } from "../lib/types";
+import { groupByBoxInstance, resolveContainerSize } from "../lib/utils";
 import { Box } from "./Box";
 
-interface AtomicVisualizerProps {
+interface Visualizer3DProps {
   result: OptimisationResult;
 }
 
-export function AtomicVisualizer({ result }: AtomicVisualizerProps) {
+export function Visualizer3D({ result }: Visualizer3DProps) {
   const groups = useMemo(() => groupByBoxInstance(result.placements), [result.placements]);
   const boxInstances = useMemo(() => Array.from(groups.keys()).sort((a, b) => a - b), [groups]);
   const [activeInstance, setActiveInstance] = useState<number>(boxInstances[0] ?? 0);

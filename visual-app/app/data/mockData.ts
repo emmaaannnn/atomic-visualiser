@@ -1,5 +1,8 @@
-import type { OptimisationResult } from "./types";
+import type { OptimisationResult } from "../lib/types";
 
+// Mock data task assigned to another engineer.
+// COMPLETE HERE <NAME>
+// Minimal placeholder result so the app can render while the data owner completes this.
 export const mockPackingResult: OptimisationResult = {
   placements: [
     {
@@ -48,3 +51,4 @@ export const mockPackingResult: OptimisationResult = {
     },
   ],
 };
+
