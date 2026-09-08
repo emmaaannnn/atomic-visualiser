@@ -15,7 +15,7 @@ export const case1Input = {
   ],
 };
 
-export const case1Output = {
+export const case1Output: OptimisationResult = {
   placements: [
     {
       boxInstance: 1,
@@ -38,9 +38,12 @@ export const case1Output = {
       boxInstance: 1,
       boxReference: "MED",
       totalWeight: 3.8,
+      dimension: { depth: 400, length: 400, width: 400 },
     },
   ],
 };
+
+export const mockPackingResult = case1Output;
 
 // Case 2: Multi-item configuration utilizing both small and medium boxes
 export const case2Input = {
@@ -54,7 +57,7 @@ export const case2Input = {
   ],
 };
 
-export const case2Output = {
+export const case2Output: OptimisationResult = {
   placements: [
     {
       boxInstance: 1,
@@ -77,6 +80,7 @@ export const case2Output = {
       boxInstance: 1,
       boxReference: "SML",
       totalWeight: 2.3,
+      dimension: { depth: 150, length: 150, width: 150 },
     },
   ],
 };

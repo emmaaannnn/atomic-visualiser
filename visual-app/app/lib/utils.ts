@@ -26,7 +26,10 @@ export function groupByBoxInstance(placements: Placement[]): Map<number, Placeme
   return groups;
 }
 
-export function resolveContainerSize(usedBox: UsedBox): THREE.Vector3 {
+export function resolveContainerSize(usedBox?: UsedBox): THREE.Vector3 {
+  if (!usedBox || !usedBox.dimension) {
+    return new THREE.Vector3(400, 400, 400).multiplyScalar(MM_TO_UNITS);
+  }
   return dimensionToVector(usedBox.dimension);
 }
 
