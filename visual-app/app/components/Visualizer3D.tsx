@@ -18,7 +18,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const [activeInstance, setActiveInstance] = useState<number>(boxInstances[0] ?? 0);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const placements = groups.get(activeInstance) ?? [];
-  const usedBox = result.usedBoxes.find((b) => b.boxInstance === activeInstance)!;
+  const usedBox = result.usedBoxes.find((b) => b.boxInstance === activeInstance);
   const containerSize = useMemo(() => resolveContainerSize(usedBox), [usedBox]);
 
   const selectedPlacement = placements.find((p) => p.itemCode === selectedItem) ?? null;
@@ -32,6 +32,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
     containerSize.z / 2,
   ];
   const maxSpan = Math.max(containerSize.x, containerSize.y, containerSize.z, 0.1);
+  const hasPlacements = placements.length > 0;
 
   return (
     <div style={styles.root}>
@@ -55,15 +56,16 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           </lineSegments>
         </group>
 
-        {placements.map((placement, i) => (
-          <Box
-            key={`${placement.boxInstance}-${placement.itemCode}`}
-            placement={placement}
-            order={i + 1}
-            selected={selectedItem === placement.itemCode}
-            onSelect={setSelectedItem}
-          />
-        ))}
+        {hasPlacements &&
+          placements.map((placement, i) => (
+            <Box
+              key={`${placement.boxInstance}-${placement.itemCode}`}
+              placement={placement}
+              order={i + 1}
+              selected={selectedItem === placement.itemCode}
+              onSelect={setSelectedItem}
+            />
+          ))}
 
         <Grid
           position={[containerSize.x / 2, 0, containerSize.z / 2]}
@@ -100,6 +102,15 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
               Carton {id}
             </button>
           ))}
+        </div>
+      )}
+
+      {!hasPlacements && (
+        <div style={styles.emptyState}>
+          <div style={styles.emptyTitle}>No placements for this case</div>
+          <div style={styles.emptyText}>
+            Switch to another case or inspect the unplaced items in the data.
+          </div>
         </div>
       )}
 
@@ -216,5 +227,27 @@ const styles: Record<string, CSSProperties> = {
     color: "#111827",
     fontWeight: 500,
     textAlign: "right",
+  },
+  emptyState: {
+    position: "absolute",
+    top: 86,
+    left: 12,
+    padding: "10px 14px",
+    borderRadius: 10,
+    background: "rgba(255,255,255,0.92)",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+    fontFamily: "Inter, system-ui, sans-serif",
+    maxWidth: 280,
+  },
+  emptyTitle: {
+    fontSize: 14,
+    fontWeight: 700,
+    color: "#111827",
+    marginBottom: 4,
+  },
+  emptyText: {
+    fontSize: 12.5,
+    color: "#4B5563",
+    lineHeight: 1.45,
   },
 };

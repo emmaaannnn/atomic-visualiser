@@ -102,3 +102,28 @@ export const case3Output = {
   ],
   usedBoxes: [],
 };
+
+export type MockCaseId = "case1" | "case2" | "case3";
+
+export const mockCases = {
+  case1: {
+    label: "Case 1",
+    description: "Two items packed into one medium carton.",
+    input: case1Input,
+    output: case1Output,
+  },
+  case2: {
+    label: "Case 2",
+    description: "A compact packing example using the small carton.",
+    input: case2Input,
+    output: case2Output,
+  },
+  case3: {
+    label: "Case 3",
+    description: "A weight-limit failure with no valid placement.",
+    input: case3Input,
+    output: case3Output as OptimisationResult,
+  },
+} as const;
+
+export const mockCaseOrder: MockCaseId[] = ["case1", "case2", "case3"];
