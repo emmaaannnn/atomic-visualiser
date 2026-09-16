@@ -1,8 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, type CSSProperties } from "react";
-import { mockCaseOrder, mockCases, type MockCaseId } from "./data/mockData";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { testCaseOrderPayload } from "./data/testCase";
+import type { OptimisationResult } from "./lib/types";
+import { convertOrderPayloadToOptimisationResult } from "./lib/utils";
 
 const Visualizer3D = dynamic(
   () => import("./components/Visualizer3D").then((m) => m.Visualizer3D),
@@ -10,44 +12,68 @@ const Visualizer3D = dynamic(
 );
 
 export default function VisualizerPage() {
-  const [activeCase, setActiveCase] = useState<MockCaseId>("case1");
-  const activeScenario = mockCases[activeCase];
+  const [livePayload, setLivePayload] = useState<typeof testCaseOrderPayload | null>(null);
+  const [payloadSource, setPayloadSource] = useState<"example" | "live">("example");
+  const currentPayload = livePayload ?? testCaseOrderPayload;
+
+  const result = useMemo<OptimisationResult | null>(() => {
+    return convertOrderPayloadToOptimisationResult(currentPayload);
+  }, [currentPayload]);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const isLocalDev =
+        event.origin.startsWith("http://localhost") || event.origin.startsWith("http://127.0.0.1");
+      const isAllowedProductionOrigin = event.origin === "https://atomic-portal2026.vercel.app";
+
+      if (!isLocalDev && !isAllowedProductionOrigin) return;
+
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+      if (data.type !== "viz-data") return;
+
+      console.log("visual-app received message", { origin: event.origin, data });
+
+      const payload = data.payload as typeof testCaseOrderPayload;
+      const converted = convertOrderPayloadToOptimisationResult(payload);
+      if (converted) {
+        console.log("visual-app converted payload to OptimisationResult", converted);
+        setLivePayload(payload);
+        setPayloadSource("live");
+      } else {
+        console.warn("visual-app could not convert payload", payload);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  if (!result) {
+    return <main style={styles.page} />;
+  }
 
   return (
     <main style={styles.page}>
       <div style={styles.overlay}>
         <div>
-          <div style={styles.kicker}>Mock data</div>
-          <div style={styles.title}>{activeScenario.label}</div>
-          <div style={styles.description}>{activeScenario.description}</div>
-        </div>
-
-        <div style={styles.caseSwitcher}>
-          {mockCaseOrder.map((caseId) => {
-            const scenario = mockCases[caseId];
-            const isActive = caseId === activeCase;
-
-            return (
-              <button
-                key={caseId}
-                type="button"
-                onClick={() => setActiveCase(caseId)}
-                style={{
-                  ...styles.caseButton,
-                  ...(isActive ? styles.caseButtonActive : {}),
-                }}
-              >
-                <span style={styles.caseButtonLabel}>{scenario.label}</span>
-                <span style={styles.caseButtonMeta}>
-                  {scenario.output.placements.length} placements
-                </span>
-              </button>
-            );
-          })}
+          <div style={styles.kicker}>{payloadSource === "live" ? "Live data" : "TEST CASE"}</div>
+          <div style={styles.title}>
+            {payloadSource === "live" ? "Received visualiser payload" : (currentPayload.external_ref ?? "Order")}
+          </div>
+          <div style={styles.description}>
+            {payloadSource === "live"
+              ? "This scene is driven by data sent from the parent page."
+              : "This scene uses the received order payload shape."}
+          </div>
+          <div style={styles.debugLine}>
+            {currentPayload.status} · {currentPayload.packedContainers?.length ?? 0} packed container(s) · {currentPayload.items?.length ?? 0} item(s)
+          </div>
+          {payloadSource === "live" && <div style={styles.debugLine}>Listening for parent messages from localhost.</div>}
         </div>
       </div>
 
-      <Visualizer3D result={activeScenario.output} />
+      <Visualizer3D result={result} />
     </main>
   );
 }
@@ -96,39 +122,9 @@ const styles: Record<string, CSSProperties> = {
     marginTop: 4,
     maxWidth: 420,
   },
-  caseSwitcher: {
-    display: "flex",
-    gap: 10,
-    flexWrap: "wrap",
-    justifyContent: "flex-end",
-  },
-  caseButton: {
-    border: "1px solid rgba(148, 163, 184, 0.28)",
-    background: "rgba(255, 255, 255, 0.08)",
-    color: "#E2E8F0",
-    borderRadius: 14,
-    padding: "10px 14px",
-    minWidth: 132,
-    textAlign: "left",
-    cursor: "pointer",
-    transition: "transform 120ms ease, background 120ms ease, border-color 120ms ease",
-  },
-  caseButtonActive: {
-    background: "linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(14, 165, 233, 0.95))",
-    borderColor: "rgba(125, 211, 252, 0.95)",
-    color: "#FFFFFF",
-    transform: "translateY(-1px)",
-  },
-  caseButtonLabel: {
-    display: "block",
-    fontSize: 14,
-    fontWeight: 700,
-    lineHeight: 1.2,
-  },
-  caseButtonMeta: {
-    display: "block",
-    marginTop: 4,
+  debugLine: {
+    marginTop: 8,
     fontSize: 12,
-    opacity: 0.82,
+    color: "#7DD3FC",
   },
 };
