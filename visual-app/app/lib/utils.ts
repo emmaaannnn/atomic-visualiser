@@ -5,7 +5,7 @@ export const MM_TO_UNITS = 0.01;
 
 
 export function dimensionToVector(d: Dimension3D): THREE.Vector3 {
-  return new THREE.Vector3(d.width, d.depth, d.length).multiplyScalar(MM_TO_UNITS);
+  return new THREE.Vector3(d.width, d.length, d.depth).multiplyScalar(MM_TO_UNITS);
 }
 
 export function positionToVector(p: Position3D): THREE.Vector3 {

@@ -133,9 +133,9 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
               {selectedOrder} of {placements.length}
             </dd>
 
-            <dt style={styles.infoLabel}>Dimensions (L×W×D, mm)</dt>
+            <dt style={styles.infoLabel}>Dimensions (W×L×D, mm)</dt>
             <dd style={styles.infoValue}>
-              {selectedPlacement.placedDimension.length} × {selectedPlacement.placedDimension.width} ×{" "}
+              {selectedPlacement.placedDimension.width} × {selectedPlacement.placedDimension.length} ×{" "}
               {selectedPlacement.placedDimension.depth}
             </dd>
 

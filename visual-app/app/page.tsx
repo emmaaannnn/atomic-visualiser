@@ -103,7 +103,9 @@ const styles: Record<string, CSSProperties> = {
     justifyContent: "flex-end",
   },
   caseButton: {
-    border: "1px solid rgba(148, 163, 184, 0.28)",
+    borderWidth: 1,
+    borderStyle: "solid",
+    borderColor: "rgba(148, 163, 184, 0.28)",
     background: "rgba(255, 255, 255, 0.08)",
     color: "#E2E8F0",
     borderRadius: 14,
