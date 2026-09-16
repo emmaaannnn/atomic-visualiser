@@ -1,8 +1,8 @@
 
 export interface Dimension3D {
-  depth: number;
-  length: number;
   width: number;
+  length: number;
+  depth: number;
 }
 
 export interface Position3D {
