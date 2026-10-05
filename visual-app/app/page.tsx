@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { testCaseOrderPayload } from "./data/testCase";
-import type { OptimisationResult } from "./lib/types";
+import { testCaseOrderPayload, samplePresets } from "./data/testCase";
+import type { OptimisationResult, PackingOrderPayload } from "./lib/types";
 import { convertOrderPayloadToOptimisationResult } from "./lib/utils";
 
 const Visualizer3D = dynamic(
@@ -12,9 +12,17 @@ const Visualizer3D = dynamic(
 );
 
 export default function VisualizerPage() {
-  const [livePayload, setLivePayload] = useState<typeof testCaseOrderPayload | null>(null);
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("test-case-1");
+  const [livePayload, setLivePayload] = useState<PackingOrderPayload | null>(null);
   const [payloadSource, setPayloadSource] = useState<"example" | "live">("example");
-  const currentPayload = livePayload ?? testCaseOrderPayload;
+
+  const currentPayload = useMemo(() => {
+    if (payloadSource === "live" && livePayload) {
+      return livePayload;
+    }
+    const preset = samplePresets.find((p) => p.id === selectedPresetId);
+    return preset ? preset.payload : testCaseOrderPayload;
+  }, [payloadSource, livePayload, selectedPresetId]);
 
   const result = useMemo<OptimisationResult | null>(() => {
     return convertOrderPayloadToOptimisationResult(currentPayload);
@@ -34,14 +42,11 @@ export default function VisualizerPage() {
 
       console.log("visual-app received message", { origin: event.origin, data });
 
-      const payload = data.payload as typeof testCaseOrderPayload;
+      const payload = data.payload as PackingOrderPayload;
       const converted = convertOrderPayloadToOptimisationResult(payload);
       if (converted) {
-        console.log("visual-app converted payload to OptimisationResult", converted);
         setLivePayload(payload);
         setPayloadSource("live");
-      } else {
-        console.warn("visual-app could not convert payload", payload);
       }
     };
 
@@ -55,25 +60,68 @@ export default function VisualizerPage() {
 
   return (
     <main style={styles.page}>
-      <div style={styles.overlay}>
-        <div>
-          <div style={styles.kicker}>{payloadSource === "live" ? "Live data" : "TEST CASE"}</div>
-          <div style={styles.title}>
-            {payloadSource === "live" ? "Received visualiser payload" : (currentPayload.external_ref ?? "Order")}
+      {/* Top Application Bar */}
+      <header style={styles.topNavbar}>
+        <div style={styles.navLeft}>
+          <div style={styles.brandIcon}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
           </div>
-          <div style={styles.description}>
-            {payloadSource === "live"
-              ? "This scene is driven by data sent from the parent page."
-              : "This scene uses the received order payload shape."}
+          <div>
+            <div style={styles.brandTitle}>ATOMIC 3D VISUALISER</div>
+            <div style={styles.brandSubtitle}>Industry-Standard Logistics & Packing Engine</div>
           </div>
-          <div style={styles.debugLine}>
-            {currentPayload.status} · {currentPayload.packedContainers?.length ?? 0} packed container(s) · {currentPayload.items?.length ?? 0} item(s)
-          </div>
-          {payloadSource === "live" && <div style={styles.debugLine}>Listening for parent messages from localhost.</div>}
         </div>
-      </div>
 
-      <Visualizer3D result={result} />
+        <div style={styles.navRight}>
+          {/* Order Ref Tag */}
+          <div style={styles.orderBadge}>
+            <span style={styles.orderLabel}>ORDER:</span>
+            <span style={styles.orderVal}>{currentPayload.external_ref ?? currentPayload.orderId?.slice(0, 8)}</span>
+          </div>
+
+          {/* Preset Selector */}
+          <div style={styles.presetGroup}>
+            <span style={styles.presetLabel}>Scenario:</span>
+            <select
+              value={payloadSource === "live" ? "live" : selectedPresetId}
+              onChange={(e) => {
+                if (e.target.value === "live") {
+                  setPayloadSource("live");
+                } else {
+                  setPayloadSource("example");
+                  setSelectedPresetId(e.target.value);
+                }
+              }}
+              style={styles.presetSelect}
+            >
+              {samplePresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.label}
+                </option>
+              ))}
+              {livePayload && <option value="live">● Live Data (Parent Window)</option>}
+            </select>
+          </div>
+
+          {/* Status Badge */}
+          <div style={styles.statusBadge}>
+            <span style={styles.statusDot} />
+            <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
+          </div>
+        </div>
+      </header>
+
+      {/* 3D Visualizer Scene with Integrated Top Spec Card & Bottom Carousel Dock */}
+      <div style={styles.sceneContainer}>
+        <Visualizer3D
+          key={payloadSource === "live" ? "live" : selectedPresetId}
+          result={result}
+        />
+      </div>
     </main>
   );
 }
@@ -84,47 +132,115 @@ const styles: Record<string, CSSProperties> = {
     height: "100dvh",
     position: "relative",
     overflow: "hidden",
-    background: "linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)",
-  },
-  overlay: {
-    position: "absolute",
-    top: 16,
-    left: 16,
-    right: 16,
-    zIndex: 10,
+    background: "linear-gradient(180deg, #0b1120 0%, #0f172a 50%, #020617 100%)",
     display: "flex",
-    alignItems: "flex-start",
+    flexDirection: "column",
+  },
+  topNavbar: {
+    height: 48,
+    padding: "0 18px",
+    display: "flex",
+    alignItems: "center",
     justifyContent: "space-between",
-    gap: 16,
-    padding: "14px 16px",
-    borderRadius: 18,
-    background: "rgba(15, 23, 42, 0.84)",
-    backdropFilter: "blur(16px)",
-    boxShadow: "0 18px 50px rgba(15, 23, 42, 0.22)",
-    color: "#F8FAFC",
+    background: "rgba(15, 23, 42, 0.95)",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+    zIndex: 40,
+    flexShrink: 0,
+    gap: 12,
   },
-  kicker: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: "0.14em",
-    color: "#93C5FD",
-    marginBottom: 4,
+  navLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 700,
-    lineHeight: 1.2,
+  brandIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 7,
+    background: "rgba(56, 189, 248, 0.15)",
+    border: "1px solid rgba(56, 189, 248, 0.3)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  description: {
+  brandTitle: {
     fontSize: 13,
-    lineHeight: 1.45,
-    color: "#CBD5E1",
-    marginTop: 4,
-    maxWidth: 420,
+    fontWeight: 800,
+    letterSpacing: "0.06em",
+    color: "#f8fafc",
+    lineHeight: 1.1,
   },
-  debugLine: {
-    marginTop: 8,
-    fontSize: 12,
-    color: "#7DD3FC",
+  brandSubtitle: {
+    fontSize: 10,
+    color: "#94a3b8",
+  },
+  navRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+  },
+  orderBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    fontSize: 11,
+    padding: "3px 8px",
+    borderRadius: 6,
+    background: "rgba(255, 255, 255, 0.05)",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+  },
+  orderLabel: {
+    color: "#94a3b8",
+    fontWeight: 600,
+  },
+  orderVal: {
+    color: "#38bdf8",
+    fontWeight: 700,
+  },
+  presetGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+  presetLabel: {
+    fontSize: 11,
+    color: "#94a3b8",
+  },
+  presetSelect: {
+    fontSize: 11,
+    fontWeight: 600,
+    padding: "4px 10px",
+    borderRadius: 6,
+    background: "rgba(30, 41, 59, 0.9)",
+    color: "#ffffff",
+    border: "1px solid rgba(255, 255, 255, 0.15)",
+    cursor: "pointer",
+    outline: "none",
+  },
+  statusBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    fontSize: 10,
+    fontWeight: 700,
+    color: "#34d399",
+    background: "rgba(16, 185, 129, 0.15)",
+    border: "1px solid rgba(16, 185, 129, 0.3)",
+    padding: "3px 8px",
+    borderRadius: 6,
+    letterSpacing: "0.05em",
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: "50%",
+    backgroundColor: "#10b981",
+    boxShadow: "0 0 6px #10b981",
+  },
+  sceneContainer: {
+    flex: 1,
+    width: "100%",
+    position: "relative",
+    overflow: "hidden",
   },
 };
