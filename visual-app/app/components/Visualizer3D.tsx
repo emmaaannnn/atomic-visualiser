@@ -122,6 +122,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
               ×
             </button>
           </div>
+<<<<<<< Updated upstream
           <dl style={styles.infoGrid}>
             <dt style={styles.infoLabel}>Carton</dt>
             <dd style={styles.infoValue}>
@@ -144,6 +145,27 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
               x{selectedPlacement.position.x}, y{selectedPlacement.position.y}, z{selectedPlacement.position.z}
             </dd>
           </dl>
+=======
+          <div style={styles.pillRow}>
+            <span>
+              <strong>Dimensions:</strong>{" "}
+              {(selectedPlacement.placedDimension.length / 10).toFixed(0)} ×{" "}
+              {(selectedPlacement.placedDimension.width / 10).toFixed(0)} ×{" "}
+              {(selectedPlacement.placedDimension.height / 10).toFixed(0)} cm
+            </span>
+            <span>·</span>
+            <span>
+              <strong>Weight:</strong> {selectedPlacement.weight ?? 1} kg
+            </span>
+            <span>·</span>
+            <span>
+              <strong>Position:</strong> (x:{" "}
+              {(selectedPlacement.position.x / 10).toFixed(0)}, y:{" "}
+              {(selectedPlacement.position.y / 10).toFixed(0)}, z:{" "}
+              {(selectedPlacement.position.z / 10).toFixed(0)} cm)
+            </span>
+          </div>
+>>>>>>> Stashed changes
         </div>
       )}
     </div>

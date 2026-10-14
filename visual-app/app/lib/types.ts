@@ -2,7 +2,7 @@
 export interface Dimension3D {
   width: number;
   length: number;
-  depth: number;
+  height: number;
 }
 
 export interface Position3D {
