@@ -26,7 +26,7 @@ export function GhostBox({ placement, order, onFitNext, containerSize }: GhostBo
 
   const lCm = (placement.placedDimension.length / 10).toFixed(0);
   const wCm = (placement.placedDimension.width / 10).toFixed(0);
-  const hCm = (placement.placedDimension.depth / 10).toFixed(0);
+  const hCm = (placement.placedDimension.height / 10).toFixed(0);
 
   // Floating 3D Guideline and Callout (Screen-Space Consistent)
   return (
