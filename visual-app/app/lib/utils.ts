@@ -5,6 +5,7 @@ import type {
   Position3D,
   PackingOrderPayload,
   UsedBox,
+  OptimisationResult,
 } from "./types";
 
 export const MM_TO_UNITS = 0.01;
@@ -44,7 +45,7 @@ export function resolveContainerSize(usedBox?: UsedBox): THREE.Vector3 {
 
 const toMm = (value: number, unit?: string) => (unit === "cm" ? value * 10 : value);
 
-export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPayload) {
+export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPayload): OptimisationResult | null {
   if (!Array.isArray(payload.packedContainers) || !Array.isArray(payload.items) || !Array.isArray(payload.containers)) {
     return null;
   }
@@ -75,6 +76,10 @@ export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPay
           y: toMm(placement.position.y, placement.position.unit),
           z: toMm(placement.position.z, placement.position.unit),
         },
+        weight: item.weight?.value ?? 1,
+        weightUnit: item.weight?.unit ?? "kg",
+        itemId: item.id,
+        rotation: placement.rotation,
       }];
     });
   });
@@ -93,7 +98,12 @@ export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPay
     return [{
       boxInstance: boxIndex + 1,
       boxReference: container?.name ?? container?.id ?? `Carton ${boxIndex + 1}`,
+      containerType: container?.name ?? "Standard Shipping Carton",
+      containerId: container?.id,
       totalWeight,
+      maxWeight: container.maxWeight?.value ?? 40,
+      weightUnit: container.maxWeight?.unit ?? "kg",
+      utilisation: packedContainer.utilisation,
       dimension: {
         length: toMm(container.dimensions.length, container.dimensions.unit),
         width: toMm(container.dimensions.width, container.dimensions.unit),
@@ -110,8 +120,16 @@ export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPay
 }
 
 const PALETTE = [
-  "#3B82C4", "#E0793C", "#4F9D6E", "#B25D9C",
-  "#D6B03C", "#010409", "#C4523E", "#00fef1",
+  "#2563EB", // Royal Blue
+  "#EA580C", // Vibrant Orange
+  "#059669", // Emerald Green
+  "#7C3AED", // Violet
+  "#D97706", // Amber
+  "#0891B2", // Cyan
+  "#DB2777", // Rose
+  "#4F46E5", // Indigo
+  "#16A34A", // Green
+  "#CA8A04", // Gold
 ];
 
 export function colourForItem(itemCode: string): string {
@@ -121,12 +139,6 @@ export function colourForItem(itemCode: string): string {
   }
   return PALETTE[hash % PALETTE.length];
 }
-<<<<<<< Updated upstream
-=======
-
-export function calculateBoxVolumeCm3(dimension: Dimension3D): number {
-  // dimension is in mm -> (width/10) * (length/10) * (height/10)
-  return (dimension.width / 10) * (dimension.length / 10) * (dimension.height / 10);
 }
 
 export function formatVolume(cm3: number): { liters: string; m3: string } {
@@ -162,4 +174,3 @@ export function formatDimensions(dimension: Dimension3D): {
     summaryMm: `${Math.round(dimension.length)} × ${Math.round(dimension.width)} × ${Math.round(dimension.height)} mm`,
   };
 }
->>>>>>> Stashed changes

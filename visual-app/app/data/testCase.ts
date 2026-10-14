@@ -61,3 +61,106 @@ export const testCaseOrderPayload: PackingOrderPayload = {
   status: "solved",
   created_at: "2026-09-09T01:46:35.401778+00:00",
 };
+
+export const multiCartonOrderPayload: PackingOrderPayload = {
+  orderId: "c28b4911-39bc-4b32-8419-f90b91e92d81",
+  packedContainers: [
+    {
+      containerId: "carton-xl-1",
+      utilisation: 0.384,
+      placements: [
+        {
+          itemId: "item-pc-tower",
+          position: { x: 0, y: 0, z: 0, unit: "cm" },
+        },
+        {
+          itemId: "item-ultrawide",
+          position: { x: 26, y: 0, z: 0, unit: "cm" },
+        },
+        {
+          itemId: "item-subwoofer",
+          position: { x: 0, y: 52, z: 0, unit: "cm" },
+        },
+      ],
+    },
+    {
+      containerId: "carton-med-2",
+      utilisation: 0.465,
+      placements: [
+        {
+          itemId: "item-keyboard",
+          position: { x: 0, y: 0, z: 0, unit: "cm" },
+        },
+        {
+          itemId: "item-docking-station",
+          position: { x: 20, y: 0, z: 0, unit: "cm" },
+        },
+        {
+          itemId: "item-cables-box",
+          position: { x: 0, y: 30, z: 0, unit: "cm" },
+        },
+      ],
+    },
+  ],
+  unpackedItems: [],
+  items: [
+    {
+      id: "item-pc-tower",
+      name: "Workstation Tower",
+      dimensions: { length: 50, width: 24, height: 45, unit: "cm" },
+      weight: { value: 11.2, unit: "kg" },
+    },
+    {
+      id: "item-ultrawide",
+      name: "34in Curved Display",
+      dimensions: { length: 80, width: 22, height: 38, unit: "cm" },
+      weight: { value: 8.5, unit: "kg" },
+    },
+    {
+      id: "item-subwoofer",
+      name: "Studio Subwoofer",
+      dimensions: { length: 28, width: 25, height: 26, unit: "cm" },
+      weight: { value: 4.8, unit: "kg" },
+    },
+    {
+      id: "item-keyboard",
+      name: "Mechanical Keyboard",
+      dimensions: { length: 45, width: 18, height: 5, unit: "cm" },
+      weight: { value: 1.4, unit: "kg" },
+    },
+    {
+      id: "item-docking-station",
+      name: "Thunderbolt 4 Dock",
+      dimensions: { length: 22, width: 12, height: 6, unit: "cm" },
+      weight: { value: 0.9, unit: "kg" },
+    },
+    {
+      id: "item-cables-box",
+      name: "Braided Power Pack",
+      dimensions: { length: 25, width: 20, height: 10, unit: "cm" },
+      weight: { value: 1.1, unit: "kg" },
+    },
+  ],
+  containers: [
+    {
+      id: "carton-xl-1",
+      name: "Industrial XL Crate",
+      dimensions: { length: 90, width: 55, height: 50, unit: "cm" },
+      maxWeight: { value: 50, unit: "kg" },
+    },
+    {
+      id: "carton-med-2",
+      name: "Standard Medium Box",
+      dimensions: { length: 50, width: 35, height: 30, unit: "cm" },
+      maxWeight: { value: 20, unit: "kg" },
+    },
+  ],
+  external_ref: "ORD-2088 (Multi-Box)",
+  status: "solved",
+  created_at: "2026-10-01T08:12:00.000Z",
+};
+
+export const samplePresets = [
+  { id: "test-case-1", label: "Workstation Setup (1 XL Carton)", payload: testCaseOrderPayload },
+  { id: "test-case-2", label: "Multi-Carton Dispatch (2 Cartons)", payload: multiCartonOrderPayload },
+];

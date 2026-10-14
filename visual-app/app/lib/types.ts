@@ -17,6 +17,10 @@ export interface Placement {
   itemCode: string;
   placedDimension: Dimension3D;
   position: Position3D;
+  weight?: number;
+  weightUnit?: string;
+  itemId?: string;
+  rotation?: PackingRotation;
 }
 
 export interface UsedBox {
@@ -24,6 +28,11 @@ export interface UsedBox {
   boxReference: string;
   totalWeight: number;
   dimension: Dimension3D;
+  maxWeight?: number;
+  weightUnit?: string;
+  containerId?: string;
+  containerType?: string;
+  utilisation?: number;
 }
 
 export interface PackingPosition {
