@@ -280,28 +280,6 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
               ×
             </button>
           </div>
-          <dl style={styles.infoGrid}>
-            <dt style={styles.infoLabel}>Carton</dt>
-            <dd style={styles.infoValue}>
-              {selectedPlacement.boxReference} #{selectedPlacement.boxInstance}
-            </dd>
-
-            <dt style={styles.infoLabel}>Placed order</dt>
-            <dd style={styles.infoValue}>
-              {selectedOrder} of {placements.length}
-            </dd>
-
-            <dt style={styles.infoLabel}>Dimensions (W×L×D, mm)</dt>
-            <dd style={styles.infoValue}>
-              {selectedPlacement.placedDimension.width} × {selectedPlacement.placedDimension.length} ×{" "}
-              {selectedPlacement.placedDimension.height}
-            </dd>
-
-            <dt style={styles.infoLabel}>Position (mm)</dt>
-            <dd style={styles.infoValue}>
-              x{selectedPlacement.position.x}, y{selectedPlacement.position.y}, z{selectedPlacement.position.z}
-            </dd>
-          </dl>
           <div style={styles.pillRow}>
             <span>
               <strong>Dimensions:</strong>{" "}
