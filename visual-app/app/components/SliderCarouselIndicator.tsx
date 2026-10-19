@@ -294,7 +294,7 @@ export function SliderCarouselIndicator({
 
               const lCm = (p.placedDimension.length / 10).toFixed(0);
               const wCm = (p.placedDimension.width / 10).toFixed(0);
-              const hCm = (p.placedDimension.depth / 10).toFixed(0);
+              const hCm = (p.placedDimension.height / 10).toFixed(0);
 
               return (
                 <div

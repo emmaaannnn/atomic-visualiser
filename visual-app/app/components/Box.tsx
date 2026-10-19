@@ -105,7 +105,7 @@ export function Box({
 
   const lCm = (placement.placedDimension.length / 10).toFixed(0);
   const wCm = (placement.placedDimension.width / 10).toFixed(0);
-  const hCm = (placement.placedDimension.depth / 10).toFixed(0);
+  const hCm = (placement.placedDimension.height / 10).toFixed(0);
 
   return (
     <group ref={groupRef} position={center}>

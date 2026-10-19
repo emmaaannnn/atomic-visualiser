@@ -125,7 +125,7 @@ export function Container3D({ containerSize, usedBox }: Container3DProps) {
           </group>
 
           {/* ======================================================== */}
-          {/* 2. DEPTH ARROW (Along Z-Axis along the side of the box)   */}
+          {/* 2. LENGTH ARROW (Along Z-Axis along the side of the box) */}
           {/* ======================================================== */}
           <group position={[zOffsetX, 0.03, 0]}>
             {/* Main Maroon Stem Bar */}
@@ -165,15 +165,15 @@ export function Container3D({ containerSize, usedBox }: Container3DProps) {
             {/* Screen-Space UI-Themed Maroon Measurement Badge */}
             <Html position={[0, 0, containerSize.z / 2]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
               <div style={styles.maroonBadge}>
-                <span style={styles.arrowIcon}>↕</span>
-                <span style={styles.axisTitle}>Depth:</span>
-                <span style={styles.axisValue}>{dims.heightCm} cm</span>
+                <span style={styles.arrowIcon}>↔</span>
+                <span style={styles.axisTitle}>Length:</span>
+                <span style={styles.axisValue}>{dims.lengthCm} cm</span>
               </div>
             </Html>
           </group>
 
           {/* ======================================================== */}
-          {/* 3. LENGTH / HEIGHT ARROW (Along Vertical Y-Axis)        */}
+          {/* 3. HEIGHT ARROW (Along Vertical Y-Axis) */}
           {/* ======================================================== */}
           <group position={[yOffsetX, 0, yOffsetZ]}>
             {/* Main Maroon Stem Bar */}
@@ -213,9 +213,9 @@ export function Container3D({ containerSize, usedBox }: Container3DProps) {
             {/* Screen-Space UI-Themed Maroon Measurement Badge */}
             <Html position={[0, containerSize.y / 2, 0]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
               <div style={styles.maroonBadge}>
-                <span style={styles.arrowIcon}>⇕</span>
-                <span style={styles.axisTitle}>Length:</span>
-                <span style={styles.axisValue}>{dims.lengthCm} cm</span>
+                <span style={styles.arrowIcon}>↕</span>
+                <span style={styles.axisTitle}>Height:</span>
+                <span style={styles.axisValue}>{dims.heightCm} cm</span>
               </div>
             </Html>
           </group>

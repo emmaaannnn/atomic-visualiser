@@ -12,7 +12,7 @@ export const MM_TO_UNITS = 0.01;
 
 
 export function dimensionToVector(d: Dimension3D): THREE.Vector3 {
-  return new THREE.Vector3(d.width, d.length, d.depth).multiplyScalar(MM_TO_UNITS);
+  return new THREE.Vector3(d.width, d.length, d.height).multiplyScalar(MM_TO_UNITS);
 }
 
 export function positionToVector(p: Position3D): THREE.Vector3 {
@@ -66,7 +66,7 @@ export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPay
         placedDimension: {
           length: toMm(item.dimensions.length, item.dimensions.unit),
           width: toMm(item.dimensions.width, item.dimensions.unit),
-          depth: toMm(item.dimensions.height, item.dimensions.unit),
+          height: toMm(item.dimensions.height, item.dimensions.unit),
         },
         position: {
           x: toMm(placement.position.x, placement.position.unit),
@@ -104,7 +104,7 @@ export function convertOrderPayloadToOptimisationResult(payload: PackingOrderPay
       dimension: {
         length: toMm(container.dimensions.length, container.dimensions.unit),
         width: toMm(container.dimensions.width, container.dimensions.unit),
-        depth: toMm(container.dimensions.height, container.dimensions.unit),
+        height: toMm(container.dimensions.height, container.dimensions.unit),
       },
     }];
   });
@@ -138,8 +138,8 @@ export function colourForItem(itemCode: string): string {
 }
 
 export function calculateBoxVolumeCm3(dimension: Dimension3D): number {
-  // dimension is in mm -> (width/10) * (length/10) * (depth/10)
-  return (dimension.width / 10) * (dimension.length / 10) * (dimension.depth / 10);
+  // dimension is in mm -> (width/10) * (length/10) * (height/10)
+  return (dimension.width / 10) * (dimension.length / 10) * (dimension.height / 10);
 }
 
 export function formatVolume(cm3: number): { liters: string; m3: string } {
@@ -163,15 +163,15 @@ export function formatDimensions(dimension: Dimension3D): {
 } {
   const lCm = (dimension.length / 10).toFixed(1);
   const wCm = (dimension.width / 10).toFixed(1);
-  const hCm = (dimension.depth / 10).toFixed(1);
+  const hCm = (dimension.height / 10).toFixed(1);
   return {
     lengthCm: lCm,
     widthCm: wCm,
     heightCm: hCm,
     lengthMm: Math.round(dimension.length),
     widthMm: Math.round(dimension.width),
-    heightMm: Math.round(dimension.depth),
+    heightMm: Math.round(dimension.height),
     summaryCm: `${lCm} × ${wCm} × ${hCm} cm`,
-    summaryMm: `${Math.round(dimension.length)} × ${Math.round(dimension.width)} × ${Math.round(dimension.depth)} mm`,
+    summaryMm: `${Math.round(dimension.length)} × ${Math.round(dimension.width)} × ${Math.round(dimension.height)} mm`,
   };
 }
