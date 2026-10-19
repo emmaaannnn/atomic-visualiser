@@ -197,7 +197,7 @@ export function SliderCarouselIndicator({
           {/* Right Toolbar: Speed, Ghost Toggle, Camera Angles */}
           <div style={styles.toolbarGroup}>
             {/* Speed Selector */}
-            <div style={styles.speedPills}>
+            <div style={{ ...styles.speedPills, flexDirection: "column", gap: 4 }}>
               {[1, 1.5, 2].map((s) => (
                 <button
                   key={s}
