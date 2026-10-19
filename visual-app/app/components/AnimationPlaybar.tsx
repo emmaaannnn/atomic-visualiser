@@ -60,7 +60,7 @@ export function AnimationPlaybar({
                   {" "}
                   ({(placements[hoveredStep - 1].placedDimension.length / 10).toFixed(0)}×
                   {(placements[hoveredStep - 1].placedDimension.width / 10).toFixed(0)}×
-                  {(placements[hoveredStep - 1].placedDimension.depth / 10).toFixed(0)} cm)
+                  {(placements[hoveredStep - 1].placedDimension.height / 10).toFixed(0)} cm)
                 </span>
               )}
             </span>
