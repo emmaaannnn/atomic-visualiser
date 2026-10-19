@@ -10,7 +10,8 @@ import { Box } from "./Box";
 import { GhostBox } from "./GhostBox";
 import { Container3D } from "./Container3D";
 import { BoxSpecificationCard } from "./BoxSpecificationCard";
-import { SliderCarouselIndicator } from "./SliderCarouselIndicator";
+import { PackageSidebar } from "./PackageSidebar";
+import { AnimationPlaybar } from "./AnimationPlaybar";
 
 interface Visualizer3DProps {
   result: OptimisationResult;
@@ -90,6 +91,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const [showGhost, setShowGhost] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [cameraView, setCameraView] = useState<"iso" | "top" | "front" | "side" | null>("iso");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(true);
 
   // Ensure activeInstance is always valid for the current result
   useEffect(() => {
@@ -143,6 +145,18 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
       setAnimatingStep(next);
       setCurrentStep(next);
       setSelectedItem(placements[currentStep].itemCode);
+    }
+  };
+
+  const handleTogglePlay = () => {
+    if (!isPlaying) {
+      if (currentStep >= placements.length) {
+        setCurrentStep(0);
+        setAnimatingStep(null);
+      }
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
     }
   };
 
@@ -224,6 +238,23 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
         </Canvas>
       </div>
 
+      {/* LEFT: Package Sequence & Details Sidebar */}
+      {hasPlacements && (
+        <PackageSidebar
+          placements={placements}
+          currentStep={currentStep}
+          onStepChange={handleStepChange}
+          onFitNext={handleFitNext}
+          selectedItem={selectedItem}
+          onSelectItem={setSelectedItem}
+          showGhost={showGhost}
+          onToggleGhost={() => setShowGhost(!showGhost)}
+          onSetCameraView={setCameraView}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+      )}
+
       {/* TOP: Specification Card of whichever box is selected */}
       <BoxSpecificationCard
         usedBox={usedBox}
@@ -235,24 +266,23 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
         }}
         currentPlacements={placements}
         currentStep={currentStep}
+        style={{
+          left: hasPlacements ? (isSidebarCollapsed ? 68 : 340) : 16,
+          transition: "left 0.25s ease",
+        }}
       />
 
-      {/* BOTTOM: Slider Carousel Indicator with Playback Controls & Next Package Preview */}
+      {/* BOTTOM: Minimal Animation Dots Playbar for Playback */}
       {hasPlacements && (
-        <SliderCarouselIndicator
-          placements={placements}
+        <AnimationPlaybar
+          totalSteps={placements.length}
           currentStep={currentStep}
           onStepChange={handleStepChange}
           isPlaying={isPlaying}
-          onTogglePlay={() => setIsPlaying(!isPlaying)}
+          onTogglePlay={handleTogglePlay}
+          placements={placements}
           playbackSpeed={playbackSpeed}
           onChangeSpeed={setPlaybackSpeed}
-          showGhost={showGhost}
-          onToggleGhost={() => setShowGhost(!showGhost)}
-          onFitNext={handleFitNext}
-          selectedItem={selectedItem}
-          onSelectItem={setSelectedItem}
-          onSetCameraView={setCameraView}
         />
       )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type { UsedBox, Placement } from "../lib/types";
 import {
   calculateBoxVolumeCm3,
@@ -15,6 +15,7 @@ interface BoxSpecificationCardProps {
   onSelectInstance: (instanceId: number) => void;
   currentPlacements: Placement[];
   currentStep: number;
+  style?: CSSProperties;
 }
 
 export function BoxSpecificationCard({
@@ -24,6 +25,7 @@ export function BoxSpecificationCard({
   onSelectInstance,
   currentPlacements,
   currentStep,
+  style,
 }: BoxSpecificationCardProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -59,7 +61,7 @@ export function BoxSpecificationCard({
       : (usedBox.utilisation ?? 0) * 100;
 
   return (
-    <div style={styles.cardContainer}>
+    <div style={{ ...styles.cardContainer, ...style }}>
       {/* Top Header Row */}
       <div style={styles.header}>
         <div style={styles.headerLeft}>
