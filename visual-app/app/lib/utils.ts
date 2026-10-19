@@ -11,15 +11,12 @@ import type {
 export const MM_TO_UNITS = 0.01;
 
 
-// utils.ts
-// Data convention: x = width, y = length, z = height (up)
-// Three.js convention: y is up, so data z → Three y, data y → Three z
 export function dimensionToVector(d: Dimension3D): THREE.Vector3 {
-  return new THREE.Vector3(d.width, d.height, d.length).multiplyScalar(MM_TO_UNITS);
+  return new THREE.Vector3(d.width, d.length, d.height).multiplyScalar(MM_TO_UNITS);
 }
 
 export function positionToVector(p: Position3D): THREE.Vector3 {
-  return new THREE.Vector3(p.x, p.z, p.y).multiplyScalar(MM_TO_UNITS);
+  return new THREE.Vector3(p.x, p.y, p.z).multiplyScalar(MM_TO_UNITS);
 }
 
 export function cornerToCenter(position: THREE.Vector3, size: THREE.Vector3): THREE.Vector3 {
@@ -139,6 +136,10 @@ export function colourForItem(itemCode: string): string {
   }
   return PALETTE[hash % PALETTE.length];
 }
+
+export function calculateBoxVolumeCm3(dimension: Dimension3D): number {
+  // dimension is in mm -> (width/10) * (length/10) * (height/10)
+  return (dimension.width / 10) * (dimension.length / 10) * (dimension.height / 10);
 }
 
 export function formatVolume(cm3: number): { liters: string; m3: string } {
