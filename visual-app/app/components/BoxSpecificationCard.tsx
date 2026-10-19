@@ -52,7 +52,7 @@ export function BoxSpecificationCard({
       acc +
       (p.placedDimension.width / 10) *
         (p.placedDimension.length / 10) *
-        (p.placedDimension.depth / 10)
+        (p.placedDimension.height / 10)
     );
   }, 0);
   const utilizationPercent =
@@ -137,7 +137,7 @@ export function BoxSpecificationCard({
             >
               <polyline points="9 18 15 12 9 6" />
             </svg>
-            <span style={styles.toggleText}>{isCollapsed ? "Expand Specs" : "Minimize"}</span>
+            <span style={styles.toggleText}>{isCollapsed ? "Expand Specs" : "Collapse Specs"}</span>
           </button>
         </div>
       </div>

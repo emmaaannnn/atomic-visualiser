@@ -315,7 +315,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
               <strong>Dimensions:</strong>{" "}
               {(selectedPlacement.placedDimension.length / 10).toFixed(0)} ×{" "}
               {(selectedPlacement.placedDimension.width / 10).toFixed(0)} ×{" "}
-              {(selectedPlacement.placedDimension.depth / 10).toFixed(0)} cm
+              {(selectedPlacement.placedDimension.height / 10).toFixed(0)} cm
             </span>
             <span>·</span>
             <span>
