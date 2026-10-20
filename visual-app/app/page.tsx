@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { testCaseOrderPayload, samplePresets } from "./data/testCase";
+import { samplePresets } from "./data/testCase";
 import type { OptimisationResult, PackingOrderPayload } from "./lib/types";
 import { convertOrderPayloadToOptimisationResult } from "./lib/utils";
 
@@ -12,20 +12,24 @@ const Visualizer3D = dynamic(
 );
 
 export default function VisualizerPage() {
-  const [selectedPresetId, setSelectedPresetId] = useState<string>("test-case-1");
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("workstation");
   const [livePayload, setLivePayload] = useState<PackingOrderPayload | null>(null);
-  const [payloadSource, setPayloadSource] = useState<"example" | "live">("example");
+  const [payloadSource, setPayloadSource] = useState<"empty" | "example" | "live">("empty");
+  const [isEmbedded, setIsEmbedded] = useState(false);
 
   const currentPayload = useMemo(() => {
-    if (payloadSource === "live" && livePayload) {
+    if (payloadSource === "empty") {
+      return null;
+    }
+    if (payloadSource === "live") {
       return livePayload;
     }
     const preset = samplePresets.find((p) => p.id === selectedPresetId);
-    return preset ? preset.payload : testCaseOrderPayload;
+    return preset?.payload ?? null;
   }, [payloadSource, livePayload, selectedPresetId]);
 
   const result = useMemo<OptimisationResult | null>(() => {
-    return convertOrderPayloadToOptimisationResult(currentPayload);
+    return currentPayload ? convertOrderPayloadToOptimisationResult(currentPayload) : null;
   }, [currentPayload]);
 
   useEffect(() => {
@@ -47,6 +51,7 @@ export default function VisualizerPage() {
       if (converted) {
         setLivePayload(payload);
         setPayloadSource("live");
+        setIsEmbedded(window.self !== window.top);
       }
     };
 
@@ -54,7 +59,7 @@ export default function VisualizerPage() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  if (!result) {
+  if (!result || !currentPayload) {
     return <main style={styles.page} />;
   }
 
@@ -62,19 +67,21 @@ export default function VisualizerPage() {
     <main style={styles.page}>
       {/* Top Application Bar */}
       <header style={styles.topNavbar}>
-        <div style={styles.navLeft}>
-          <div style={styles.brandIcon}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2" />
-              <polyline points="2 17 12 22 22 17" />
-              <polyline points="2 12 12 17 22 12" />
-            </svg>
+        {!isEmbedded && (
+          <div style={styles.navLeft}>
+            <div style={styles.brandIcon}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
+            </div>
+            <div>
+              <div style={styles.brandTitle}>ATOMIC 3D VISUALISER</div>
+              <div style={styles.brandSubtitle}>Industry-Standard Logistics & Packing Engine</div>
+            </div>
           </div>
-          <div>
-            <div style={styles.brandTitle}>ATOMIC 3D VISUALISER</div>
-            <div style={styles.brandSubtitle}>Industry-Standard Logistics & Packing Engine</div>
-          </div>
-        </div>
+        )}
 
         <div style={styles.navRight}>
           {/* Order Ref Tag */}
@@ -84,34 +91,38 @@ export default function VisualizerPage() {
           </div>
 
           {/* Preset Selector */}
-          <div style={styles.presetGroup}>
-            <span style={styles.presetLabel}>Scenario:</span>
-            <select
-              value={payloadSource === "live" ? "live" : selectedPresetId}
-              onChange={(e) => {
-                if (e.target.value === "live") {
-                  setPayloadSource("live");
-                } else {
-                  setPayloadSource("example");
-                  setSelectedPresetId(e.target.value);
-                }
-              }}
-              style={styles.presetSelect}
-            >
-              {samplePresets.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.label}
-                </option>
-              ))}
-              {livePayload && <option value="live">● Live Data (Parent Window)</option>}
-            </select>
-          </div>
+          {!isEmbedded && (
+            <>
+              <div style={styles.presetGroup}>
+                <span style={styles.presetLabel}>Scenario:</span>
+                <select
+                  value={payloadSource === "live" ? "live" : selectedPresetId}
+                  onChange={(e) => {
+                    if (e.target.value === "live") {
+                      setPayloadSource("live");
+                    } else {
+                      setPayloadSource("example");
+                      setSelectedPresetId(e.target.value);
+                    }
+                  }}
+                  style={styles.presetSelect}
+                >
+                  {samplePresets.map((preset) => (
+                    <option key={preset.id} value={preset.id}>
+                      {preset.label}
+                    </option>
+                  ))}
+                  {livePayload && <option value="live">● Live Data (Parent Window)</option>}
+                </select>
+              </div>
 
-          {/* Status Badge */}
-          <div style={styles.statusBadge}>
-            <span style={styles.statusDot} />
-            <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
-          </div>
+              {/* Status Badge */}
+              <div style={styles.statusBadge}>
+                <span style={styles.statusDot} />
+                <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
