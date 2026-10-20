@@ -203,27 +203,6 @@ export function AnimationPlaybar({
           <span style={styles.counterTotal}>{totalSteps}</span>
         </div>
 
-        {/* Optional Speed Indicator (compact) */}
-        {onChangeSpeed && playbackSpeed !== undefined && (
-          <>
-            <div style={styles.divider} />
-            <div style={styles.speedGroup}>
-              {[1, 1.5, 2].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => onChangeSpeed(s)}
-                  style={{
-                    ...styles.speedBtn,
-                    ...(playbackSpeed === s ? styles.speedBtnActive : {}),
-                  }}
-                  title={`Speed ${s}x`}
-                >
-                  {s}x
-                </button>
-              ))}
-            </div>
-          </>
-        )}
       </div>
     </div>
   );

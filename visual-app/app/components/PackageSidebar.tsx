@@ -50,7 +50,7 @@ export function PackageSidebar({
     }
   }, [currentStep, isCollapsed]);
 
-  // If collapsed, render a sleek vertical floating trigger pill
+
   if (isCollapsed) {
     return (
       <div style={styles.collapsedWrapper}>
@@ -71,9 +71,11 @@ export function PackageSidebar({
       </div>
     );
   }
-
+  
   return (
     <aside style={styles.sidebarWrapper} aria-label="Package sequence sidebar">
+      
+      
       {/* Sidebar Header */}
       <div style={styles.header}>
         <div style={styles.headerTitleGroup}>
@@ -141,32 +143,6 @@ export function PackageSidebar({
             <span>{showGhost ? "Preview On" : "Preview Off"}</span>
           </button>
 
-          {/* Camera Angles */}
-          {onSetCameraView && (
-            <div style={styles.cameraGroup}>
-              <button
-                onClick={() => onSetCameraView("iso")}
-                style={styles.camBtn}
-                title="Isometric 3D View"
-              >
-                3D
-              </button>
-              <button
-                onClick={() => onSetCameraView("top")}
-                style={styles.camBtn}
-                title="Top-Down View"
-              >
-                Top
-              </button>
-              <button
-                onClick={() => onSetCameraView("front")}
-                style={styles.camBtn}
-                title="Front View"
-              >
-                Front
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
