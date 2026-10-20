@@ -59,10 +59,6 @@ export default function VisualizerPage() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  if (!result || !currentPayload) {
-    return <main style={styles.page} />;
-  }
-
   return (
     <main style={styles.page}>
       {/* Top Application Bar */}
@@ -85,10 +81,12 @@ export default function VisualizerPage() {
 
         <div style={styles.navRight}>
           {/* Order Ref Tag */}
-          <div style={styles.orderBadge}>
-            <span style={styles.orderLabel}>ORDER:</span>
-            <span style={styles.orderVal}>{currentPayload.external_ref ?? currentPayload.orderId?.slice(0, 8)}</span>
-          </div>
+          {currentPayload && (
+            <div style={styles.orderBadge}>
+              <span style={styles.orderLabel}>ORDER:</span>
+              <span style={styles.orderVal}>{currentPayload.external_ref ?? currentPayload.orderId?.slice(0, 8)}</span>
+            </div>
+          )}
 
           {/* Preset Selector */}
           {!isEmbedded && (
@@ -96,7 +94,13 @@ export default function VisualizerPage() {
               <div style={styles.presetGroup}>
                 <span style={styles.presetLabel}>Scenario:</span>
                 <select
-                  value={payloadSource === "live" ? "live" : selectedPresetId}
+                  value={
+                    payloadSource === "live"
+                      ? "live"
+                      : payloadSource === "empty"
+                        ? ""
+                        : selectedPresetId
+                  }
                   onChange={(e) => {
                     if (e.target.value === "live") {
                       setPayloadSource("live");
@@ -107,6 +111,9 @@ export default function VisualizerPage() {
                   }}
                   style={styles.presetSelect}
                 >
+                  <option value="" disabled>
+                    Select sample data...
+                  </option>
                   {samplePresets.map((preset) => (
                     <option key={preset.id} value={preset.id}>
                       {preset.label}
@@ -117,10 +124,12 @@ export default function VisualizerPage() {
               </div>
 
               {/* Status Badge */}
-              <div style={styles.statusBadge}>
-                <span style={styles.statusDot} />
-                <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
-              </div>
+              {currentPayload && (
+                <div style={styles.statusBadge}>
+                  <span style={styles.statusDot} />
+                  <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -128,10 +137,16 @@ export default function VisualizerPage() {
 
       {/* 3D Visualizer Scene with Integrated Top Spec Card & Bottom Carousel Dock */}
       <div style={styles.sceneContainer}>
-        <Visualizer3D
-          key={payloadSource === "live" ? "live" : selectedPresetId}
-          result={result}
-        />
+        {result ? (
+          <Visualizer3D
+            key={payloadSource === "live" ? "live" : selectedPresetId}
+            result={result}
+          />
+        ) : (
+          <div style={styles.emptyPrompt}>
+            Select a scenario above to load sample packing data.
+          </div>
+        )}
       </div>
     </main>
   );
@@ -139,7 +154,7 @@ export default function VisualizerPage() {
 
 const styles: Record<string, CSSProperties> = {
   page: {
-    width: "100vw",
+    width: "100%",
     height: "100dvh",
     position: "relative",
     overflow: "hidden",
@@ -253,5 +268,16 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     position: "relative",
     overflow: "hidden",
+  },
+  emptyPrompt: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#94a3b8",
+    fontSize: 14,
+    textAlign: "center",
+    padding: 24,
   },
 };
