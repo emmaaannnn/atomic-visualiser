@@ -9,7 +9,6 @@ import { groupByBoxInstance, resolveContainerSize, formatDimensions } from "../l
 import { Box } from "./Box";
 import { GhostBox } from "./GhostBox";
 import { Container3D } from "./Container3D";
-import { BoxSpecificationCard } from "./BoxSpecificationCard";
 import { PackageSidebar } from "./PackageSidebar";
 import { AnimationPlaybar } from "./AnimationPlaybar";
 
@@ -262,23 +261,6 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
       )}
-
-      {/* TOP: Specification Card of whichever box is selected */}
-      <BoxSpecificationCard
-        usedBox={usedBox}
-        availableBoxes={result.usedBoxes}
-        activeInstance={activeInstance}
-        onSelectInstance={(id) => {
-          setActiveInstance(id);
-          setCameraView("iso");
-        }}
-        currentPlacements={placements}
-        currentStep={currentStep}
-        style={{
-          left: hasPlacements ? (isSidebarCollapsed ? 68 : 340) : 16,
-          transition: "left 0.25s ease",
-        }}
-      />
 
       {/* BOTTOM: Minimal Animation Dots Playbar for Playback */}
       {hasPlacements && (
