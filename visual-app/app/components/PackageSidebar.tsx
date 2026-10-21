@@ -148,31 +148,6 @@ export function PackageSidebar({
 
       {/* Scrollable Package Cards List */}
       <div ref={listRef} style={styles.cardsList}>
-        {/* Step 0: Start / Empty Container */}
-        <div
-          data-step={0}
-          onClick={() => {
-            onStepChange(0);
-            onSelectItem(null);
-          }}
-          style={{
-            ...styles.card,
-            ...(currentStep === 0 ? styles.cardActive : {}),
-          }}
-        >
-          <div style={styles.cardHeader}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={styles.emptyDot}>○</span>
-              <span style={styles.cardStepLabel}>START</span>
-            </div>
-            <span style={styles.statusPillNeutral}>
-              {currentStep === 0 ? "● Selected" : "Step 0"}
-            </span>
-          </div>
-          <div style={styles.cardTitle}>Empty Container</div>
-          <div style={styles.cardSubtitle}>Initial state before packing</div>
-        </div>
-
         {/* Packages 1..N */}
         {placements.map((p, index) => {
           const order = index + 1;

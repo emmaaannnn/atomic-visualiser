@@ -91,7 +91,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const containerSize = useMemo(() => resolveContainerSize(usedBox), [usedBox]);
 
   // Packing timeline animation state
-  const [currentStep, setCurrentStep] = useState<number>(placements.length);
+  const [currentStep, setCurrentStep] = useState<number>(0);
   const [animatingStep, setAnimatingStep] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
@@ -112,15 +112,18 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
     setIsPlaying(false);
     setAnimatingStep(null);
     setSelectedItem(null);
-    setCurrentStep(placements.length);
-  }, [result, activeInstance, placements.length]);
+    setCurrentStep(0);
+  }, [result, activeInstance]);
 
   // Automated playback sequence
   useEffect(() => {
     if (!isPlaying) return;
 
     const intervalTime = Math.max(400, 1400 / playbackSpeed);
-    const interval = setInterval(() => {
+    const initialDelay = currentStep === 0 ? Math.max(300, 600 / playbackSpeed) : intervalTime;
+
+    const stepForward = () => {
+
       setCurrentStep((prev) => {
         if (prev < placements.length) {
           const next = prev + 1;
@@ -131,9 +134,19 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           return prev;
         }
       });
-    }, intervalTime);
+    };
 
-    return () => clearInterval(interval);
+    let interval: ReturnType<typeof setInterval> | null = null;
+    const timeout = setTimeout(() => {
+      stepForward();
+      interval = setInterval(stepForward, intervalTime);
+    }, initialDelay);
+
+
+    return () => {
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
   }, [isPlaying, playbackSpeed, placements.length]);
 
   const handleStepChange = (newStep: number) => {
@@ -147,6 +160,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   };
 
   const handleFitNext = () => {
+    setIsPlaying(false);
     if (currentStep < placements.length) {
       const next = currentStep + 1;
       setAnimatingStep(next);
@@ -157,11 +171,13 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
 
   const handleTogglePlay = () => {
     if (!isPlaying) {
-      if (currentStep >= placements.length) {
-        setCurrentStep(0);
-        setAnimatingStep(null);
+      if (placements.length > 0) {
+        if (currentStep >= placements.length) {
+          setCurrentStep(0);
+          setAnimatingStep(null);
+        }
+        setIsPlaying(true);
       }
-      setIsPlaying(true);
     } else {
       setIsPlaying(false);
     }
@@ -218,7 +234,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
             ))}
 
           {/* Holographic Ghost Blueprint for the Next Package */}
-          {showGhost && currentStep < placements.length && (
+          {showGhost && !isPlaying && currentStep > 0 && currentStep < placements.length && (
             <GhostBox
               placement={placements[currentStep]}
               order={currentStep + 1}

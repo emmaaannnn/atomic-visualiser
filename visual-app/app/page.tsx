@@ -14,7 +14,7 @@ const Visualizer3D = dynamic(
 export default function VisualizerPage() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>("workstation");
   const [livePayload, setLivePayload] = useState<PackingOrderPayload | null>(null);
-  const [payloadSource, setPayloadSource] = useState<"empty" | "example" | "live">("empty");
+  const [payloadSource, setPayloadSource] = useState<"empty" | "example" | "live">("example");
   const [isEmbedded, setIsEmbedded] = useState(false);
 
   const currentPayload = useMemo(() => {
@@ -33,6 +33,11 @@ export default function VisualizerPage() {
   }, [currentPayload]);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.self !== window.top) {
+      setIsEmbedded(true);
+      setPayloadSource((prev) => (prev === "example" ? "empty" : prev));
+    }
+
     const handleMessage = (event: MessageEvent) => {
       const isLocalDev =
         event.origin.startsWith("http://localhost") || event.origin.startsWith("http://127.0.0.1");
