@@ -196,23 +196,7 @@ export function SliderCarouselIndicator({
 
           {/* Right Toolbar: Speed, Ghost Toggle, Camera Angles */}
           <div style={styles.toolbarGroup}>
-            {/* Speed Selector */}
-            <div style={{ ...styles.speedPills, flexDirection: "column", gap: 4 }}>
-              {[1, 1.5, 2].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => onChangeSpeed(s)}
-                  style={{
-                    ...styles.speedButton,
-                    ...(playbackSpeed === s ? styles.speedButtonActive : {}),
-                  }}
-                  title={`Playback speed ${s}x`}
-                >
-                  {s}x
-                </button>
-              ))}
-            </div>
-
+            
             {/* Ghost Preview Toggle */}
             <button
               onClick={onToggleGhost}
@@ -229,32 +213,8 @@ export function SliderCarouselIndicator({
               <span>{showGhost ? "Preview On" : "Preview Off"}</span>
             </button>
 
-            {/* Quick Camera Angles */}
-            {onSetCameraView && (
-              <div style={styles.cameraPills}>
-                <button
-                  onClick={() => onSetCameraView("iso")}
-                  style={styles.cameraButton}
-                  title="Isometric 3D View"
-                >
-                  3D
-                </button>
-                <button
-                  onClick={() => onSetCameraView("top")}
-                  style={styles.cameraButton}
-                  title="Top-Down View"
-                >
-                  Top
-                </button>
-                <button
-                  onClick={() => onSetCameraView("front")}
-                  style={styles.cameraButton}
-                  title="Front View"
-                >
-                  Front
-                </button>
-              </div>
-            )}
+      
+            
           </div>
         </div>
 

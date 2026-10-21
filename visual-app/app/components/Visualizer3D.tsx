@@ -10,7 +10,8 @@ import { Box } from "./Box";
 import { GhostBox } from "./GhostBox";
 import { Container3D } from "./Container3D";
 import { BoxSpecificationCard } from "./BoxSpecificationCard";
-import { SliderCarouselIndicator } from "./SliderCarouselIndicator";
+import { PackageSidebar } from "./PackageSidebar";
+import { AnimationPlaybar } from "./AnimationPlaybar";
 
 interface Visualizer3DProps {
   result: OptimisationResult;
@@ -59,12 +60,20 @@ function CameraRig({
     camera.lookAt(containerCenter[0], containerCenter[1], containerCenter[2]);
   }, [cameraView, camera, containerCenter, containerSize]);
 
-  return (
+const gl = useThree((state) => state.gl);
+
+return (
     <OrbitControls
       makeDefault
       enableDamping
       dampingFactor={0.08}
       target={containerCenter}
+      enableZoom={true}
+      enableRotate={true}
+      enablePan={true}
+      minDistance={0.5}
+      maxDistance={100}
+      zoomSpeed={1.2}
     />
   );
 }
@@ -90,6 +99,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const [showGhost, setShowGhost] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [cameraView, setCameraView] = useState<"iso" | "top" | "front" | "side" | null>("iso");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(true);
 
   // Ensure activeInstance is always valid for the current result
   useEffect(() => {
@@ -143,6 +153,18 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
       setAnimatingStep(next);
       setCurrentStep(next);
       setSelectedItem(placements[currentStep].itemCode);
+    }
+  };
+
+  const handleTogglePlay = () => {
+    if (!isPlaying) {
+      if (currentStep >= placements.length) {
+        setCurrentStep(0);
+        setAnimatingStep(null);
+      }
+      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
     }
   };
 
@@ -224,6 +246,23 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
         </Canvas>
       </div>
 
+      {/* LEFT: Package Sequence & Details Sidebar */}
+      {hasPlacements && (
+        <PackageSidebar
+          placements={placements}
+          currentStep={currentStep}
+          onStepChange={handleStepChange}
+          onFitNext={handleFitNext}
+          selectedItem={selectedItem}
+          onSelectItem={setSelectedItem}
+          showGhost={showGhost}
+          onToggleGhost={() => setShowGhost(!showGhost)}
+          onSetCameraView={setCameraView}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+      )}
+
       {/* TOP: Specification Card of whichever box is selected */}
       <BoxSpecificationCard
         usedBox={usedBox}
@@ -235,24 +274,23 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
         }}
         currentPlacements={placements}
         currentStep={currentStep}
+        style={{
+          left: hasPlacements ? (isSidebarCollapsed ? 68 : 340) : 16,
+          transition: "left 0.25s ease",
+        }}
       />
 
-      {/* BOTTOM: Slider Carousel Indicator with Playback Controls & Next Package Preview */}
+      {/* BOTTOM: Minimal Animation Dots Playbar for Playback */}
       {hasPlacements && (
-        <SliderCarouselIndicator
-          placements={placements}
+        <AnimationPlaybar
+          totalSteps={placements.length}
           currentStep={currentStep}
           onStepChange={handleStepChange}
           isPlaying={isPlaying}
-          onTogglePlay={() => setIsPlaying(!isPlaying)}
+          onTogglePlay={handleTogglePlay}
+          placements={placements}
           playbackSpeed={playbackSpeed}
           onChangeSpeed={setPlaybackSpeed}
-          showGhost={showGhost}
-          onToggleGhost={() => setShowGhost(!showGhost)}
-          onFitNext={handleFitNext}
-          selectedItem={selectedItem}
-          onSelectItem={setSelectedItem}
-          onSetCameraView={setCameraView}
         />
       )}
 
@@ -301,6 +339,108 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           </div>
         </div>
       )}
+
+{/* Floating Right Dock: Zoom & View Controls */}
+      <div
+        style={{
+          position: "absolute",
+          right: 20,
+          top: "50%",
+          transform: "translateY(-50%)",
+          zIndex: 30,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 6,
+          padding: "8px 6px",
+          background: "rgba(15, 23, 42, 0.75)",
+          backdropFilter: "blur(12px)",
+          borderRadius: 10,
+          border: "1px solid rgba(51, 65, 85, 0.5)",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
+        }}
+      >
+        {/* Zoom In */}
+        <button
+          type="button"
+          onClick={() => {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+              canvas.dispatchEvent(new WheelEvent("wheel", { deltaY: -120, bubbles: true }));
+            }
+          }}
+          style={{
+            width: 32,
+            height: 32,
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#e2e8f0",
+            background: "rgba(30, 41, 59, 0.7)",
+            border: "1px solid rgba(71, 85, 105, 0.4)",
+            borderRadius: 6,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Zoom In"
+        >
+          +
+        </button>
+
+        {/* Zoom Out */}
+        <button
+          type="button"
+          onClick={() => {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+              canvas.dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true }));
+            }
+          }}
+          style={{
+            width: 32,
+            height: 32,
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#e2e8f0",
+            background: "rgba(30, 41, 59, 0.7)",
+            border: "1px solid rgba(71, 85, 105, 0.4)",
+            borderRadius: 6,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Zoom Out"
+        >
+          −
+        </button>
+
+        <div style={{ height: 1, width: "80%", background: "rgba(51, 65, 85, 0.5)", margin: "4px 0" }} />
+
+        {/* View Controls */}
+        {(["iso", "top", "front"] as const).map((view) => (
+          <button
+            key={view}
+            type="button"
+            onClick={() => setCameraView(view)}
+            style={{
+              width: 44,
+              padding: "6px 0",
+              fontSize: 11,
+              fontWeight: 700,
+              color: cameraView === view ? "#38bdf8" : "#94a3b8",
+              background: cameraView === view ? "rgba(56, 189, 248, 0.2)" : "rgba(30, 41, 59, 0.7)",
+              border: cameraView === view ? "1px solid #38bdf8" : "1px solid rgba(71, 85, 105, 0.4)",
+              borderRadius: 6,
+              cursor: "pointer",
+              textAlign: "center",
+            }}
+          >
+            {view === "iso" ? "3D" : view.charAt(0).toUpperCase() + view.slice(1)}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
