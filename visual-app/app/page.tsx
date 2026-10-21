@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { testCaseOrderPayload, samplePresets } from "./data/testCase";
+import { samplePresets } from "./data/testCase";
 import type { OptimisationResult, PackingOrderPayload } from "./lib/types";
 import { convertOrderPayloadToOptimisationResult } from "./lib/utils";
 
@@ -12,20 +12,24 @@ const Visualizer3D = dynamic(
 );
 
 export default function VisualizerPage() {
-  const [selectedPresetId, setSelectedPresetId] = useState<string>("test-case-1");
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("workstation");
   const [livePayload, setLivePayload] = useState<PackingOrderPayload | null>(null);
-  const [payloadSource, setPayloadSource] = useState<"example" | "live">("example");
+  const [payloadSource, setPayloadSource] = useState<"empty" | "example" | "live">("empty");
+  const [isEmbedded, setIsEmbedded] = useState(false);
 
   const currentPayload = useMemo(() => {
-    if (payloadSource === "live" && livePayload) {
+    if (payloadSource === "empty") {
+      return null;
+    }
+    if (payloadSource === "live") {
       return livePayload;
     }
     const preset = samplePresets.find((p) => p.id === selectedPresetId);
-    return preset ? preset.payload : testCaseOrderPayload;
+    return preset?.payload ?? null;
   }, [payloadSource, livePayload, selectedPresetId]);
 
   const result = useMemo<OptimisationResult | null>(() => {
-    return convertOrderPayloadToOptimisationResult(currentPayload);
+    return currentPayload ? convertOrderPayloadToOptimisationResult(currentPayload) : null;
   }, [currentPayload]);
 
   useEffect(() => {
@@ -47,6 +51,7 @@ export default function VisualizerPage() {
       if (converted) {
         setLivePayload(payload);
         setPayloadSource("live");
+        setIsEmbedded(window.self !== window.top);
       }
     };
 
@@ -54,73 +59,94 @@ export default function VisualizerPage() {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  if (!result) {
-    return <main style={styles.page} />;
-  }
-
   return (
     <main style={styles.page}>
       {/* Top Application Bar */}
       <header style={styles.topNavbar}>
-        <div style={styles.navLeft}>
-          <div style={styles.brandIcon}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2" />
-              <polyline points="2 17 12 22 22 17" />
-              <polyline points="2 12 12 17 22 12" />
-            </svg>
+        {!isEmbedded && (
+          <div style={styles.navLeft}>
+            <div style={styles.brandIcon}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2.2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
+            </div>
+            <div>
+              <div style={styles.brandTitle}>ATOMIC 3D VISUALISER</div>
+              <div style={styles.brandSubtitle}>Industry-Standard Logistics & Packing Engine</div>
+            </div>
           </div>
-          <div>
-            <div style={styles.brandTitle}>ATOMIC 3D VISUALISER</div>
-            <div style={styles.brandSubtitle}>Industry-Standard Logistics & Packing Engine</div>
-          </div>
-        </div>
+        )}
 
         <div style={styles.navRight}>
           {/* Order Ref Tag */}
-          <div style={styles.orderBadge}>
-            <span style={styles.orderLabel}>ORDER:</span>
-            <span style={styles.orderVal}>{currentPayload.external_ref ?? currentPayload.orderId?.slice(0, 8)}</span>
-          </div>
+          {currentPayload && (
+            <div style={styles.orderBadge}>
+              <span style={styles.orderLabel}>ORDER:</span>
+              <span style={styles.orderVal}>{currentPayload.external_ref ?? currentPayload.orderId?.slice(0, 8)}</span>
+            </div>
+          )}
 
           {/* Preset Selector */}
-          <div style={styles.presetGroup}>
-            <span style={styles.presetLabel}>Scenario:</span>
-            <select
-              value={payloadSource === "live" ? "live" : selectedPresetId}
-              onChange={(e) => {
-                if (e.target.value === "live") {
-                  setPayloadSource("live");
-                } else {
-                  setPayloadSource("example");
-                  setSelectedPresetId(e.target.value);
-                }
-              }}
-              style={styles.presetSelect}
-            >
-              {samplePresets.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.label}
-                </option>
-              ))}
-              {livePayload && <option value="live">● Live Data (Parent Window)</option>}
-            </select>
-          </div>
+          {!isEmbedded && (
+            <>
+              <div style={styles.presetGroup}>
+                <span style={styles.presetLabel}>Scenario:</span>
+                <select
+                  value={
+                    payloadSource === "live"
+                      ? "live"
+                      : payloadSource === "empty"
+                        ? ""
+                        : selectedPresetId
+                  }
+                  onChange={(e) => {
+                    if (e.target.value === "live") {
+                      setPayloadSource("live");
+                    } else {
+                      setPayloadSource("example");
+                      setSelectedPresetId(e.target.value);
+                    }
+                  }}
+                  style={styles.presetSelect}
+                >
+                  <option value="" disabled>
+                    Select sample data...
+                  </option>
+                  {samplePresets.map((preset) => (
+                    <option key={preset.id} value={preset.id}>
+                      {preset.label}
+                    </option>
+                  ))}
+                  {livePayload && <option value="live">● Live Data (Parent Window)</option>}
+                </select>
+              </div>
 
-          {/* Status Badge */}
-          <div style={styles.statusBadge}>
-            <span style={styles.statusDot} />
-            <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
-          </div>
+              {/* Status Badge */}
+              {currentPayload && (
+                <div style={styles.statusBadge}>
+                  <span style={styles.statusDot} />
+                  <span>{currentPayload.status?.toUpperCase() ?? "SOLVED"}</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </header>
 
       {/* 3D Visualizer Scene with Integrated Top Spec Card & Bottom Carousel Dock */}
       <div style={styles.sceneContainer}>
-        <Visualizer3D
-          key={payloadSource === "live" ? "live" : selectedPresetId}
-          result={result}
-        />
+        {result ? (
+          <Visualizer3D
+            key={payloadSource === "live" ? "live" : selectedPresetId}
+            result={result}
+          />
+        ) : (
+          <div style={styles.emptyPrompt}>
+            Select a scenario above to load sample packing data.
+          </div>
+        )}
       </div>
     </main>
   );
@@ -128,7 +154,7 @@ export default function VisualizerPage() {
 
 const styles: Record<string, CSSProperties> = {
   page: {
-    width: "100vw",
+    width: "100%",
     height: "100dvh",
     position: "relative",
     overflow: "hidden",
@@ -242,5 +268,16 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     position: "relative",
     overflow: "hidden",
+  },
+  emptyPrompt: {
+    position: "absolute",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#94a3b8",
+    fontSize: 14,
+    textAlign: "center",
+    padding: 24,
   },
 };
