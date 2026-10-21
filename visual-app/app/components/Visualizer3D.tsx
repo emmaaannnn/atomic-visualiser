@@ -340,7 +340,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
         </div>
       )}
 
-{/* Floating Right-Hand Dock: Speed & Camera Controls */}
+{/* Floating Right Dock: Zoom & View Controls */}
       <div
         style={{
           position: "absolute",
@@ -351,86 +351,96 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 10,
+          gap: 6,
           padding: "8px 6px",
           background: "rgba(15, 23, 42, 0.75)",
           backdropFilter: "blur(12px)",
-          borderRadius: 12,
+          borderRadius: 10,
           border: "1px solid rgba(51, 65, 85, 0.5)",
           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
         }}
       >
-       {/* Speed Multipliers */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 5, width: "100%" }}>
-          {([1, 1.5, 2] as const).map((s) => {
-            const isActive = playbackSpeed === s;
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setPlaybackSpeed(s)}
-                style={{
-                  padding: "6px 10px",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  letterSpacing: "0.02em",
-                  color: isActive ? "#38bdf8" : "#94a3b8",
-                  background: isActive ? "rgba(56, 189, 248, 0.22)" : "rgba(30, 41, 59, 0.7)",
-                  border: isActive ? "1px solid #38bdf8" : "1px solid rgba(71, 85, 105, 0.4)",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                  textAlign: "center",
-                  transition: "all 0.15s ease",
-                  boxShadow: isActive ? "0 0 10px rgba(56, 189, 248, 0.3)" : "none",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "rgba(51, 65, 85, 0.85)";
-                    e.currentTarget.style.color = "#f1f5f9";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.background = "rgba(30, 41, 59, 0.7)";
-                    e.currentTarget.style.color = "#94a3b8";
-                  }
-                }}
-              >
-                {s}x
-              </button>
-            );
-          })}
-        </div>
+        {/* Zoom In */}
+        <button
+          type="button"
+          onClick={() => {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+              canvas.dispatchEvent(new WheelEvent("wheel", { deltaY: -120, bubbles: true }));
+            }
+          }}
+          style={{
+            width: 32,
+            height: 32,
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#e2e8f0",
+            background: "rgba(30, 41, 59, 0.7)",
+            border: "1px solid rgba(71, 85, 105, 0.4)",
+            borderRadius: 6,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Zoom In"
+        >
+          +
+        </button>
 
-        {/* Divider */}
-        <div style={{ height: 1, width: "80%", background: "rgba(51, 65, 85, 0.5)" }} />
+        {/* Zoom Out */}
+        <button
+          type="button"
+          onClick={() => {
+            const canvas = document.querySelector("canvas");
+            if (canvas) {
+              canvas.dispatchEvent(new WheelEvent("wheel", { deltaY: 120, bubbles: true }));
+            }
+          }}
+          style={{
+            width: 32,
+            height: 32,
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#e2e8f0",
+            background: "rgba(30, 41, 59, 0.7)",
+            border: "1px solid rgba(71, 85, 105, 0.4)",
+            borderRadius: 6,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          title="Zoom Out"
+        >
+          −
+        </button>
 
-        {/* Camera Views */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, width: "100%" }}>
-          {(["iso", "top", "front"] as const).map((view) => (
-            <button
-              key={view}
-              type="button"
-              onClick={() => setCameraView(view)}
-              style={{
-                padding: "8px 12px",
-                fontSize: 11,
-                fontWeight: 700,
-                color: cameraView === view ? "#38bdf8" : "#e2e8f0",
-                background: cameraView === view ? "rgba(56, 189, 248, 0.15)" : "rgba(30, 41, 59, 0.8)",
-                border: cameraView === view ? "1px solid rgba(56, 189, 248, 0.5)" : "1px solid rgba(71, 85, 105, 0.4)",
-                borderRadius: 6,
-                cursor: "pointer",
-                textAlign: "center",
-                transition: "all 0.15s ease",
-              }}
-            >
-              {view === "iso" ? "3D" : view.charAt(0).toUpperCase() + view.slice(1)}
-            </button>
-          ))}
-        </div>
+        <div style={{ height: 1, width: "80%", background: "rgba(51, 65, 85, 0.5)", margin: "4px 0" }} />
+
+        {/* View Controls */}
+        {(["iso", "top", "front"] as const).map((view) => (
+          <button
+            key={view}
+            type="button"
+            onClick={() => setCameraView(view)}
+            style={{
+              width: 44,
+              padding: "6px 0",
+              fontSize: 11,
+              fontWeight: 700,
+              color: cameraView === view ? "#38bdf8" : "#94a3b8",
+              background: cameraView === view ? "rgba(56, 189, 248, 0.2)" : "rgba(30, 41, 59, 0.7)",
+              border: cameraView === view ? "1px solid #38bdf8" : "1px solid rgba(71, 85, 105, 0.4)",
+              borderRadius: 6,
+              cursor: "pointer",
+              textAlign: "center",
+            }}
+          >
+            {view === "iso" ? "3D" : view.charAt(0).toUpperCase() + view.slice(1)}
+          </button>
+        ))}
       </div>
-
     </div>
   );
 }
