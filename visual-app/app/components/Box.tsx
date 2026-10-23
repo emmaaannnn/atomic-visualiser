@@ -138,76 +138,80 @@ export function Box({
         />
       </lineSegments>
 
-      {/* Screen-Space Consistent 3D Label */}
-      <Html center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
-        <div
-          style={{
-            fontFamily:
-              "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif",
-            fontSize: "12px",
-            fontWeight: 700,
-            color: "#ffffff",
-            background: selected
-              ? "rgba(15, 23, 42, 0.96)"
-              : "rgba(17, 24, 39, 0.88)",
-            border: selected
-              ? "2px solid #38bdf8"
-              : "1px solid rgba(255, 255, 255, 0.2)",
-            borderRadius: "6px",
-            padding: "4px 9px",
-            whiteSpace: "nowrap",
-            maxWidth: "180px",
-            boxShadow: selected
-              ? "0 0 16px rgba(56, 189, 248, 0.6)"
-              : "0 4px 10px rgba(0,0,0,0.35)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 2,
-            transition: "all 0.15s ease",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 5, maxWidth: "100%" }}>
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                backgroundColor: colour,
-                boxShadow: `0 0 6px ${colour}`,
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontSize: "12px",
-                fontWeight: 700,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              #{order} {placement.itemCode}
-            </span>
-          </div>
-
-          {showSubDetails && (
+      {(selected || hovered) && (
+        <>
+          {/* Screen-Space Consistent 3D Label */}
+          <Html center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
             <div
               style={{
-                fontSize: "10px",
-                color: "#cbd5e1",
-                fontWeight: 500,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
+                fontFamily:
+                  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#ffffff",
+                background: selected
+                  ? "rgba(15, 23, 42, 0.96)"
+                  : "rgba(17, 24, 39, 0.88)",
+                border: selected
+                  ? "2px solid #38bdf8"
+                  : "1px solid rgba(255, 255, 255, 0.2)",
+                borderRadius: "6px",
+                padding: "4px 9px",
                 whiteSpace: "nowrap",
-                maxWidth: "100%",
+                maxWidth: "180px",
+                boxShadow: selected
+                  ? "0 0 16px rgba(56, 189, 248, 0.6)"
+                  : "0 4px 10px rgba(0,0,0,0.35)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+                transition: "all 0.15s ease",
               }}
             >
-              {lCm} × {wCm} × {hCm} cm · {placement.weight ?? 1} kg
+              <div style={{ display: "flex", alignItems: "center", gap: 5, maxWidth: "100%" }}>
+                <span
+                  style={{
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    backgroundColor: colour,
+                    boxShadow: `0 0 6px ${colour}`,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  #{order} {placement.itemCode}
+                </span>
+              </div>
+
+              {showSubDetails && (
+                <div
+                  style={{
+                    fontSize: "10px",
+                    color: "#cbd5e1",
+                    fontWeight: 500,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    maxWidth: "100%",
+                  }}
+                >
+                  {lCm} × {wCm} × {hCm} cm · {placement.weight ?? 1} kg
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </Html>
+          </Html>
+        </>
+      )}
     </group>
   );
 }
