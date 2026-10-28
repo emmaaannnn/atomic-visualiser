@@ -9,12 +9,17 @@ import { formatDimensions } from "../lib/utils";
 interface Container3DProps {
   containerSize: THREE.Vector3;
   usedBox?: UsedBox;
+  showDimensionLabels?: boolean;
 }
 
 const MAROON = "#991b1b";
 const MAROON_DARK = "#7f1d1d";
 
-export function Container3D({ containerSize, usedBox }: Container3DProps) {
+export function Container3D({
+  containerSize,
+  usedBox,
+  showDimensionLabels = true,
+}: Container3DProps) {
   const containerCenter: [number, number, number] = useMemo(
     () => [containerSize.x / 2, containerSize.y / 2, containerSize.z / 2],
     [containerSize]
@@ -115,13 +120,15 @@ export function Container3D({ containerSize, usedBox }: Container3DProps) {
             </mesh>
 
             {/* Screen-Space UI-Themed Maroon Measurement Badge */}
-            <Html position={[containerSize.x / 2, 0, 0]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
-              <div style={styles.maroonBadge}>
-                <span style={styles.arrowIcon}>↔</span>
-                <span style={styles.axisTitle}>Width:</span>
-                <span style={styles.axisValue}>{dims.widthCm} cm</span>
-              </div>
-            </Html>
+            {showDimensionLabels && (
+              <Html position={[containerSize.x / 2, 0, 0]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
+                <div style={styles.maroonBadge}>
+                  <span style={styles.arrowIcon}>↔</span>
+                  <span style={styles.axisTitle}>Width:</span>
+                  <span style={styles.axisValue}>{dims.widthCm} cm</span>
+                </div>
+              </Html>
+            )}
           </group>
 
           {/* ======================================================== */}
@@ -163,13 +170,15 @@ export function Container3D({ containerSize, usedBox }: Container3DProps) {
             </mesh>
 
             {/* Screen-Space UI-Themed Maroon Measurement Badge */}
-            <Html position={[0, 0, containerSize.z / 2]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
-              <div style={styles.maroonBadge}>
-                <span style={styles.arrowIcon}>↔</span>
-                <span style={styles.axisTitle}>Length:</span>
-                <span style={styles.axisValue}>{dims.lengthCm} cm</span>
-              </div>
-            </Html>
+            {showDimensionLabels && (
+              <Html position={[0, 0, containerSize.z / 2]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
+                <div style={styles.maroonBadge}>
+                  <span style={styles.arrowIcon}>↔</span>
+                  <span style={styles.axisTitle}>Length:</span>
+                  <span style={styles.axisValue}>{dims.lengthCm} cm</span>
+                </div>
+              </Html>
+            )}
           </group>
 
           {/* ======================================================== */}
@@ -211,13 +220,15 @@ export function Container3D({ containerSize, usedBox }: Container3DProps) {
             </mesh>
 
             {/* Screen-Space UI-Themed Maroon Measurement Badge */}
-            <Html position={[0, containerSize.y / 2, 0]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
-              <div style={styles.maroonBadge}>
-                <span style={styles.arrowIcon}>↕</span>
-                <span style={styles.axisTitle}>Height:</span>
-                <span style={styles.axisValue}>{dims.heightCm} cm</span>
-              </div>
-            </Html>
+            {showDimensionLabels && (
+              <Html position={[0, containerSize.y / 2, 0]} center zIndexRange={[0, 10]} style={{ pointerEvents: "none" }}>
+                <div style={styles.maroonBadge}>
+                  <span style={styles.arrowIcon}>↕</span>
+                  <span style={styles.axisTitle}>Height:</span>
+                  <span style={styles.axisValue}>{dims.heightCm} cm</span>
+                </div>
+              </Html>
+            )}
           </group>
         </group>
       )}

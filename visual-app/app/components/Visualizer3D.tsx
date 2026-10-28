@@ -96,6 +96,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
   const [showGhost, setShowGhost] = useState<boolean>(true);
+  const [showBoxLabels, setShowBoxLabels] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [cameraView, setCameraView] = useState<"iso" | "top" | "front" | "side" | null>("iso");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(true);
@@ -172,6 +173,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const handleTogglePlay = () => {
     if (!isPlaying) {
       if (placements.length > 0) {
+        setShowBoxLabels(false);
         if (currentStep >= placements.length) {
           setCurrentStep(0);
           setAnimatingStep(null);
@@ -216,7 +218,11 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           <directionalLight position={[-8, 6, -6]} intensity={0.35} />
 
           {/* Realistic 3D Container with base plate & measurement annotations */}
-          <Container3D containerSize={containerSize} usedBox={usedBox} />
+          <Container3D
+            containerSize={containerSize}
+            usedBox={usedBox}
+            showDimensionLabels={showBoxLabels}
+          />
 
           {/* Packed Boxes (animated entrance when step reached) */}
           {hasPlacements &&
@@ -358,6 +364,30 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
         }}
       >
+        <button
+          type="button"
+          onClick={() => setShowBoxLabels((showing) => !showing)}
+          style={{
+            width: 44,
+            padding: "6px 0",
+            fontSize: 10,
+            fontWeight: 700,
+            color: showBoxLabels ? "#38bdf8" : "#94a3b8",
+            background: showBoxLabels ? "rgba(56, 189, 248, 0.2)" : "rgba(30, 41, 59, 0.7)",
+            border: showBoxLabels ? "1px solid #38bdf8" : "1px solid rgba(71, 85, 105, 0.4)",
+            borderRadius: 6,
+            cursor: "pointer",
+            textAlign: "center",
+          }}
+          title={`${showBoxLabels ? "Hide" : "Show"} box dimension labels`}
+          aria-label={`${showBoxLabels ? "Hide" : "Show"} box dimension labels`}
+          aria-pressed={showBoxLabels}
+        >
+          Labels {showBoxLabels ? "On" : "Off"}
+        </button>
+
+        <div style={{ height: 1, width: "80%", background: "rgba(51, 65, 85, 0.5)", margin: "4px 0" }} />
+
         {/* Zoom In */}
         <button
           type="button"
