@@ -78,6 +78,7 @@ return (
 }
 
 export function Visualizer3D({ result }: Visualizer3DProps) {
+  const [activeCartonIndex, setActiveCartonIndex] = useState(0);
   const groups = useMemo(() => groupByBoxInstance(result.placements), [result.placements]);
   const boxInstances = useMemo(() => Array.from(groups.keys()).sort((a, b) => a - b), [groups]);
 
@@ -266,6 +267,36 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           />
         </Canvas>
       </div>
+
+      {boxInstances.length > 1 && (
+  <div className="flex items-center justify-between bg-slate-800/80 px-3 py-2 rounded-xl mb-3 text-xs text-slate-200 border border-slate-700">
+    <span className="font-medium">
+      Box {boxInstances.indexOf(activeInstance) + 1} of {boxInstances.length}
+    </span>
+    <div className="flex gap-2">
+      <button 
+        disabled={boxInstances.indexOf(activeInstance) === 0}
+        onClick={() => {
+          const currentIndex = boxInstances.indexOf(activeInstance);
+          if (currentIndex > 0) setActiveInstance(boxInstances[currentIndex - 1]);
+        }}
+        className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors"
+      >
+        Prev
+      </button>
+      <button 
+        disabled={boxInstances.indexOf(activeInstance) === boxInstances.length - 1}
+        onClick={() => {
+          const currentIndex = boxInstances.indexOf(activeInstance);
+          if (currentIndex < boxInstances.length - 1) setActiveInstance(boxInstances[currentIndex + 1]);
+        }}
+        className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+)}
 
       {/* LEFT: Package Sequence & Details Sidebar */}
       {hasPlacements && (
