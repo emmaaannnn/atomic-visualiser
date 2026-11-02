@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
-import type { OptimisationResult, Placement } from "../lib/types";
-import { groupByBoxInstance, resolveContainerSize, formatDimensions } from "../lib/utils";
+import type { OptimisationResult } from "../lib/types";
+import { groupByBoxInstance, resolveContainerSize } from "../lib/utils";
 import { Box } from "./Box";
 import { GhostBox } from "./GhostBox";
 import { Container3D } from "./Container3D";
@@ -59,8 +59,6 @@ function CameraRig({
     camera.lookAt(containerCenter[0], containerCenter[1], containerCenter[2]);
   }, [cameraView, camera, containerCenter, containerSize]);
 
-const gl = useThree((state) => state.gl);
-
 return (
     <OrbitControls
       makeDefault
@@ -78,12 +76,11 @@ return (
 }
 
 export function Visualizer3D({ result }: Visualizer3DProps) {
-  const [activeCartonIndex, setActiveCartonIndex] = useState(0);
   const groups = useMemo(() => groupByBoxInstance(result.placements), [result.placements]);
   const boxInstances = useMemo(() => Array.from(groups.keys()).sort((a, b) => a - b), [groups]);
 
-  // Active carton instance
-  const [activeInstance, setActiveInstance] = useState<number>(boxInstances[0] ?? 1);
+  const [activeBoxIndex, setActiveBoxIndex] = useState(0);
+  const activeInstance = boxInstances[activeBoxIndex] ?? boxInstances[0] ?? 1;
   const placements = useMemo(() => groups.get(activeInstance) ?? [], [groups, activeInstance]);
   const usedBox = useMemo(
     () => result.usedBoxes.find((b) => b.boxInstance === activeInstance),
@@ -95,27 +92,19 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [animatingStep, setAnimatingStep] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+  const playbackSpeed = 1;
   const [showGhost, setShowGhost] = useState<boolean>(true);
   const [showBoxLabels, setShowBoxLabels] = useState<boolean>(true);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [cameraView, setCameraView] = useState<"iso" | "top" | "front" | "side" | null>("iso");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(true);
 
-  // Ensure activeInstance is always valid for the current result
-  useEffect(() => {
-    if (boxInstances.length > 0 && !boxInstances.includes(activeInstance)) {
-      setActiveInstance(boxInstances[0]);
-    }
-  }, [boxInstances, activeInstance]);
-
-  // When result or active carton changes, cleanly stop playback and reset timeline
-  useEffect(() => {
+  const resetBoxPlayback = () => {
     setIsPlaying(false);
     setAnimatingStep(null);
     setSelectedItem(null);
     setCurrentStep(0);
-  }, [result, activeInstance]);
+  };
 
   // Automated playback sequence
   useEffect(() => {
@@ -149,7 +138,7 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
       clearTimeout(timeout);
       if (interval) clearInterval(interval);
     };
-  }, [isPlaying, playbackSpeed, placements.length]);
+  }, [isPlaying, playbackSpeed, placements.length, currentStep]);
 
   const handleStepChange = (newStep: number) => {
     setIsPlaying(false);
@@ -159,6 +148,20 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
       setAnimatingStep(null);
     }
     setCurrentStep(newStep);
+  };
+
+  const handlePreviousBox = () => {
+    if (activeBoxIndex > 0) {
+      resetBoxPlayback();
+      setActiveBoxIndex(activeBoxIndex - 1);
+    }
+  };
+
+  const handleNextBox = () => {
+    if (activeBoxIndex < boxInstances.length - 1) {
+      resetBoxPlayback();
+      setActiveBoxIndex(activeBoxIndex + 1);
+    }
   };
 
   const handleFitNext = () => {
@@ -268,36 +271,6 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
         </Canvas>
       </div>
 
-      {boxInstances.length > 1 && (
-  <div className="flex items-center justify-between bg-slate-800/80 px-3 py-2 rounded-xl mb-3 text-xs text-slate-200 border border-slate-700">
-    <span className="font-medium">
-      Box {boxInstances.indexOf(activeInstance) + 1} of {boxInstances.length}
-    </span>
-    <div className="flex gap-2">
-      <button 
-        disabled={boxInstances.indexOf(activeInstance) === 0}
-        onClick={() => {
-          const currentIndex = boxInstances.indexOf(activeInstance);
-          if (currentIndex > 0) setActiveInstance(boxInstances[currentIndex - 1]);
-        }}
-        className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors"
-      >
-        Prev
-      </button>
-      <button 
-        disabled={boxInstances.indexOf(activeInstance) === boxInstances.length - 1}
-        onClick={() => {
-          const currentIndex = boxInstances.indexOf(activeInstance);
-          if (currentIndex < boxInstances.length - 1) setActiveInstance(boxInstances[currentIndex + 1]);
-        }}
-        className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors"
-      >
-        Next
-      </button>
-    </div>
-  </div>
-)}
-
       {/* LEFT: Package Sequence & Details Sidebar */}
       {hasPlacements && (
         <PackageSidebar
@@ -324,8 +297,16 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
           isPlaying={isPlaying}
           onTogglePlay={handleTogglePlay}
           placements={placements}
-          playbackSpeed={playbackSpeed}
-          onChangeSpeed={setPlaybackSpeed}
+          boxNavigation={
+            boxInstances.length > 1
+              ? {
+                  currentBox: activeBoxIndex + 1,
+                  totalBoxes: boxInstances.length,
+                  onPrevious: handlePreviousBox,
+                  onNext: handleNextBox,
+                }
+              : undefined
+          }
         />
       )}
 

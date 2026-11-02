@@ -11,8 +11,12 @@ interface AnimationPlaybarProps {
   isPlaying: boolean;
   onTogglePlay: () => void;
   placements: Placement[];
-  playbackSpeed?: number;
-  onChangeSpeed?: (speed: number) => void;
+  boxNavigation?: {
+    currentBox: number;
+    totalBoxes: number;
+    onPrevious: () => void;
+    onNext: () => void;
+  };
 }
 
 export function AnimationPlaybar({
@@ -22,8 +26,7 @@ export function AnimationPlaybar({
   isPlaying,
   onTogglePlay,
   placements,
-  playbackSpeed,
-  onChangeSpeed,
+  boxNavigation,
 }: AnimationPlaybarProps) {
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
@@ -68,7 +71,34 @@ export function AnimationPlaybar({
         </div>
       )}
 
-      <div style={styles.playbarCard}>
+      <div style={styles.playbarRow}>
+        {boxNavigation && (
+          <button
+            onClick={boxNavigation.onPrevious}
+            disabled={boxNavigation.currentBox === 1}
+            style={{
+              ...styles.iconBtn,
+              ...styles.boxNavBtn,
+              ...(boxNavigation.currentBox === 1 ? styles.disabledBtn : {}),
+            }}
+            title="Previous box"
+            aria-label="Previous box"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+        )}
+
+        <div style={styles.playbarCard}>
+          {boxNavigation && (
+            <>
+              <div style={styles.boxCounter}>
+                Box {boxNavigation.currentBox} of {boxNavigation.totalBoxes}
+              </div>
+              <div style={styles.divider} />
+            </>
+          )}
         {/* Playback Controls */}
         <div style={styles.controlsGroup}>
           {/* Reset button */}
@@ -202,7 +232,25 @@ export function AnimationPlaybar({
           <span style={styles.counterSlash}>/</span>
           <span style={styles.counterTotal}>{totalSteps}</span>
         </div>
+        </div>
 
+        {boxNavigation && (
+          <button
+            onClick={boxNavigation.onNext}
+            disabled={boxNavigation.currentBox === boxNavigation.totalBoxes}
+            style={{
+              ...styles.iconBtn,
+              ...styles.boxNavBtn,
+              ...(boxNavigation.currentBox === boxNavigation.totalBoxes ? styles.disabledBtn : {}),
+            }}
+            title="Next box"
+            aria-label="Next box"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -220,6 +268,28 @@ const styles: Record<string, CSSProperties> = {
     flexDirection: "column",
     alignItems: "center",
     gap: 8,
+  },
+  playbarRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    maxWidth: "calc(100vw - 20px)",
+  },
+  boxNavBtn: {
+    width: 34,
+    height: 34,
+    flexShrink: 0,
+    background: "rgba(15, 23, 42, 0.88)",
+    backdropFilter: "blur(12px)",
+    WebkitBackdropFilter: "blur(12px)",
+    boxShadow: "0 6px 18px rgba(0, 0, 0, 0.3)",
+  },
+  boxCounter: {
+    flexShrink: 0,
+    color: "#94a3b8",
+    fontSize: 10,
+    fontWeight: 700,
+    whiteSpace: "nowrap",
   },
   tooltip: {
     background: "rgba(15, 23, 42, 0.95)",

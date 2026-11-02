@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { samplePresets } from "./data/testCase";
 import type { OptimisationResult, PackingOrderPayload } from "./lib/types";
 import { convertOrderPayloadToOptimisationResult } from "./lib/utils";
@@ -11,14 +11,23 @@ const Visualizer3D = dynamic(
   { ssr: false }
 );
 
+const subscribeToEmbedState = () => () => {};
+const getEmbedState = () => typeof window !== "undefined" && window.self !== window.top;
+const getServerEmbedState = () => false;
+
 export default function VisualizerPage() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>("workstation");
   const [livePayload, setLivePayload] = useState<PackingOrderPayload | null>(null);
+  const [livePayloadRevision, setLivePayloadRevision] = useState(0);
   const [payloadSource, setPayloadSource] = useState<"empty" | "example" | "live">("example");
-  const [isEmbedded, setIsEmbedded] = useState(false);
+  const isEmbedded = useSyncExternalStore(
+    subscribeToEmbedState,
+    getEmbedState,
+    getServerEmbedState
+  );
 
   const currentPayload = useMemo(() => {
-    if (payloadSource === "empty") {
+    if (payloadSource === "empty" || (isEmbedded && payloadSource === "example")) {
       return null;
     }
     if (payloadSource === "live") {
@@ -26,18 +35,13 @@ export default function VisualizerPage() {
     }
     const preset = samplePresets.find((p) => p.id === selectedPresetId);
     return preset?.payload ?? null;
-  }, [payloadSource, livePayload, selectedPresetId]);
+  }, [isEmbedded, payloadSource, livePayload, selectedPresetId]);
 
   const result = useMemo<OptimisationResult | null>(() => {
     return currentPayload ? convertOrderPayloadToOptimisationResult(currentPayload) : null;
   }, [currentPayload]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.self !== window.top) {
-      setIsEmbedded(true);
-      setPayloadSource((prev) => (prev === "example" ? "empty" : prev));
-    }
-
     const handleMessage = (event: MessageEvent) => {
       const isLocalDev =
         event.origin.startsWith("http://localhost") || event.origin.startsWith("http://127.0.0.1");
@@ -55,8 +59,8 @@ export default function VisualizerPage() {
       const converted = convertOrderPayloadToOptimisationResult(payload);
       if (converted) {
         setLivePayload(payload);
+        setLivePayloadRevision((revision) => revision + 1);
         setPayloadSource("live");
-        setIsEmbedded(window.self !== window.top);
       }
     };
 
@@ -144,7 +148,7 @@ export default function VisualizerPage() {
       <div style={styles.sceneContainer}>
         {result ? (
           <Visualizer3D
-            key={payloadSource === "live" ? "live" : selectedPresetId}
+            key={payloadSource === "live" ? `live-${livePayloadRevision}` : selectedPresetId}
             result={result}
           />
         ) : (
