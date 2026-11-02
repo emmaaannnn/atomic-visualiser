@@ -299,33 +299,31 @@ export function Visualizer3D({ result }: Visualizer3DProps) {
 )}
 
 {boxInstances.length > 1 && (
-  <div className="px-4 pt-3">
-    <div className="flex items-center justify-between bg-slate-800/90 backdrop-blur-sm px-3.5 py-2.5 rounded-xl text-xs text-slate-200 border border-slate-700 shadow-lg">
-      <span className="font-semibold text-slate-100">
-        Box {boxInstances.indexOf(activeInstance) + 1} of {boxInstances.length}
-      </span>
-      <div className="flex gap-2">
-        <button 
-          disabled={boxInstances.indexOf(activeInstance) === 0}
-          onClick={() => {
-            const currentIndex = boxInstances.indexOf(activeInstance);
-            if (currentIndex > 0) setActiveInstance(boxInstances[currentIndex - 1]);
-          }}
-          className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors font-medium"
-        >
-          Prev
-        </button>
-        <button 
-          disabled={boxInstances.indexOf(activeInstance) === boxInstances.length - 1}
-          onClick={() => {
-            const currentIndex = boxInstances.indexOf(activeInstance);
-            if (currentIndex < boxInstances.length - 1) setActiveInstance(boxInstances[currentIndex + 1]);
-          }}
-          className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors font-medium"
-        >
-          Next
-        </button>
-      </div>
+  <div className="mx-3 mb-2 flex items-center justify-between bg-slate-800/90 backdrop-blur-sm px-3.5 py-2.5 rounded-xl text-xs text-slate-200 border border-slate-700 shadow-lg">
+    <span className="font-semibold text-slate-100">
+      Box {boxInstances.indexOf(activeInstance) + 1} of {boxInstances.length}
+    </span>
+    <div className="flex gap-2">
+      <button 
+        disabled={boxInstances.indexOf(activeInstance) === 0}
+        onClick={() => {
+          const currentIndex = boxInstances.indexOf(activeInstance);
+          if (currentIndex > 0) setActiveInstance(boxInstances[currentIndex - 1]);
+        }}
+        className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors font-medium"
+      >
+        Prev
+      </button>
+      <button 
+        disabled={boxInstances.indexOf(activeInstance) === boxInstances.length - 1}
+        onClick={() => {
+          const currentIndex = boxInstances.indexOf(activeInstance);
+          if (currentIndex < boxInstances.length - 1) setActiveInstance(boxInstances[currentIndex + 1]);
+        }}
+        className="px-2.5 py-1 bg-slate-700 rounded-lg disabled:opacity-40 hover:bg-slate-600 transition-colors font-medium"
+      >
+        Next
+      </button>
     </div>
   </div>
 )}
